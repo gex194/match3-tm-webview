@@ -1,0 +1,61 @@
+@import './base.css';
+
+#app {
+  height: 100%;
+  width: 100%;
+  min-height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+ul {
+  padding: 0;
+}
+
+.gameria-text {
+  font-family: 'Gameria';
+  background-image: linear-gradient(180deg, #fcc7df 0%, #f87dab 100%);
+  background-size: 100%;
+  background-clip: text;
+  filter: drop-shadow(2px 2px rgba(98, 0, 22, 1));
+  -webkit-text-fill-color: transparent;
+}
+
+.main-container {
+  background: rgba(253, 142, 188, 0.5);
+  border-radius: 15px;
+  box-shadow: 0px 0px 25px 0px rgba(255, 255, 255, 0.25) inset;
+}
+
+.roksana-text {
+  font-family: 'Roksana';
+  -webkit-text-stroke-width: 0.7px;
+  -webkit-text-stroke-color: black;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    /* display: grid; */
+    grid-template-columns: 1fr 1fr;
+  }
+}
