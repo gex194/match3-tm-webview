@@ -15,8 +15,10 @@
   },
   "dependencies": {
     "pinia": "^2.1.7",
+    "pixi.js": "^8.4.1",
     "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "vue-router": "^4.3.3",
+    "vue3-pixi": "^0.9.3"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
-const timer = ref(10)
+const timer = ref(30)
 const countDownTimer = () => {
   if (timer.value > 0) {
     setTimeout(() => {
@@ -15,7 +15,7 @@ const countDownTimer = () => {
 }
 
 onMounted(() => {
-  countDownTimer()
+  // countDownTimer()
 })
 </script>
 

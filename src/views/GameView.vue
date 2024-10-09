@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import TopPanel from '@/components/TopPanel.vue'
+import Renderer from '@/components/Game/RendererComponent.vue'
+import Grid from '@/components/Game/GridComponent.vue'
 </script>
 
 <template>
   <main class="game-screen">
     <TopPanel />
+    <Renderer>
+      <Grid />
+    </Renderer>
   </main>
 </template>
 
