@@ -4,7 +4,7 @@ import { Application } from 'vue3-pixi'
 
 <template>
   <div>
-    <Application :width="430" :height="600" :background-alpha="0">
+    <Application :width="475" :height="500" :background-alpha="0">
       <container>
         <slot></slot>
       </container>
@@ -12,7 +12,4 @@ import { Application } from 'vue3-pixi'
   </div>
 </template>
 
-<style scoped>
-.render-container {
-}
-</style>
+<style scoped></style>

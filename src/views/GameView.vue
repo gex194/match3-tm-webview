@@ -8,6 +8,7 @@ import Grid from '@/components/Game/GridComponent.vue'
   <main class="game-screen">
     <TopPanel />
     <Renderer>
+      <!-- <GridComponentV2 /> -->
       <Grid />
     </Renderer>
   </main>

@@ -61,12 +61,12 @@
 
 @font-face {
   font-family: 'Roksana';
-  src: url('src/assets/fonts/Raksanademo.otf');
+  src: url('/src/assets/fonts/Raksanademo.otf');
 }
 
 @font-face {
   font-family: 'Gameria';
-  src: url('src/assets/fonts/GAMERIA.ttf');
+  src: url('/src/assets/fonts/GAMERIA.ttf');
 }
 
 body {
