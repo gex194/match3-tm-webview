@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { ref, useTemplateRef } from 'vue'
 import { Application } from 'vue3-pixi'
+
+const container = useTemplateRef('container')
 </script>
 
 <template>
-  <div>
-    <Application :width="475" :height="500" :background-alpha="0">
+  <div class="main-container" :ref="container">
+    <Application :width="400" :height="430" :background-alpha="0" :resize-to="container">
       <container>
         <slot></slot>
       </container>

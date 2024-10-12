@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useGameInfoStore } from '@/stores/GameInfo'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
-const timer = ref(30)
+const timer = ref(0)
+
+const gameInfo = useGameInfoStore()
+
 const countDownTimer = () => {
   if (timer.value > 0) {
     setTimeout(() => {
@@ -15,7 +19,7 @@ const countDownTimer = () => {
 }
 
 onMounted(() => {
-  // countDownTimer()
+  timer.value = gameInfo.time
 })
 </script>
 
@@ -23,7 +27,7 @@ onMounted(() => {
   <div class="main-container container">
     <div class="score">
       <span class="roksana-text score-title">Score</span>
-      <span class="gameria-text score-value">123321</span>
+      <span class="gameria-text score-value">{{ gameInfo.score }}</span>
     </div>
     <div class="time">
       <span class="roksana-text time-title">Time</span>
@@ -39,6 +43,7 @@ onMounted(() => {
   justify-content: space-between;
   margin-right: 10px;
   margin-left: 10px;
+  gap: 150px;
 }
 
 .score,

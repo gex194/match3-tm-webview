@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { generateRequestID, openWebSocketConnection } from '@/helpers/websocket-cli'
+import { useGameInfoStore } from '@/stores/GameInfo'
 import { reactive, onMounted, onBeforeMount, toRaw } from 'vue'
 import { onTick } from 'vue3-pixi'
 
@@ -7,11 +8,15 @@ const state = reactive({
   sprites: [] as any[],
   selected: null as any | null,
   socket: null as WebSocket | null,
-  gameState: null as GameState | null
+  gameState: null as GameState | null,
+  matches: [] as any[],
+  deleted: false as Boolean
 })
 
-const SPRITE_WIDTH = 60
-const SPRITE_HEIGHT = 64
+const gameInfo = useGameInfoStore()
+
+const SPRITE_WIDTH = 50
+const SPRITE_HEIGHT = 54
 const SCALE_X = 0.5
 const SCALE_Y = 0.5
 
@@ -77,13 +82,17 @@ const initializeWebSocketConnection = () => {
       console.log('event from message ws', event)
       if (response.path == '/game/start_game') {
         state.gameState = response.data as GameState
+        gameInfo.setTime(state.gameState.duration)
         hydrateGrid()
       }
 
       if (response.path == '/game/move') {
         state.gameState = response.data as GameState
+        state.matches = response.data.matches
         console.log('game move response ws', response)
-        hydrateGrid()
+        gameInfo.setScore(state.gameState.score)
+
+        // hydrateGrid()
       }
 
       console.log('vue state gameState', state.gameState)
@@ -144,6 +153,28 @@ onBeforeMount(() => {
 })
 
 onTick(() => {
+  if (state.matches.length > 0) {
+    state.matches.forEach((match) => {
+      match.cells.forEach((matchCell) => {
+        state.sprites.forEach((sprite) => {
+          if (sprite.id == matchCell.id && sprite.scale.x > 0) {
+            sprite.scale.x -= 0.015
+            sprite.scale.y -= 0.015
+            if (sprite.scale.x <= 0 && sprite.scale.y <= 0) {
+              state.deleted = true
+              state.matches = []
+            }
+          }
+        })
+      })
+    })
+  }
+
+  if (state.deleted == true) {
+    hydrateGrid()
+    state.deleted = false
+  }
+
   if (state.selected) {
     const scale = 0.5 + 0.1 * Math.sin(Date.now() / 100)
     state.selected.scale.x = scale

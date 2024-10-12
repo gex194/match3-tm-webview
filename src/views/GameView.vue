@@ -6,11 +6,13 @@ import Grid from '@/components/Game/GridComponent.vue'
 
 <template>
   <main class="game-screen">
-    <TopPanel />
-    <Renderer>
-      <!-- <GridComponentV2 /> -->
-      <Grid />
-    </Renderer>
+    <div class="game-screen-container">
+      <TopPanel />
+      <Renderer>
+        <!-- <GridComponentV2 /> -->
+        <Grid />
+      </Renderer>
+    </div>
   </main>
 </template>
 
@@ -25,5 +27,13 @@ import Grid from '@/components/Game/GridComponent.vue'
   background-image: url('/src/assets/images/waifu-game-screen.png');
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.game-screen-container {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  align-items: center;
+  justify-content: center;
 }
 </style>
