@@ -2,9 +2,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import StyledButton from '@/components/StyledButton.vue'
+import { useGameInfoStore } from '@/stores/GameInfo'
 
 const inputValue = ref('test value')
 const router = useRouter()
+const gameInfo = useGameInfoStore()
 
 const handleSubmit = () => {
   router.push({ name: 'leaderboard' })
@@ -22,11 +24,11 @@ const handleSubmit = () => {
     <div name="result-block">
       <div class="time-result">
         <span class="roksana-text time-title">Time</span>
-        <span class="gameria-text time-value">4:20</span>
+        <span class="gameria-text time-value">{{ gameInfo.time }}</span>
       </div>
       <div class="score-result">
         <span class="roksana-text score-title">Score</span>
-        <span class="gameria-text score-value">123321</span>
+        <span class="gameria-text score-value">{{ gameInfo.score }}</span>
       </div>
     </div>
     <div name="result-personal">

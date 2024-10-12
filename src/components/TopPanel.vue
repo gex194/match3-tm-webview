@@ -3,7 +3,7 @@ import { useGameInfoStore } from '@/stores/GameInfo'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
-const timer = ref(0)
+const timer = ref(20)
 
 const gameInfo = useGameInfoStore()
 
@@ -20,6 +20,7 @@ const countDownTimer = () => {
 
 onMounted(() => {
   timer.value = gameInfo.time
+  countDownTimer()
 })
 </script>
 
@@ -43,7 +44,7 @@ onMounted(() => {
   justify-content: space-between;
   margin-right: 10px;
   margin-left: 10px;
-  gap: 150px;
+  gap: 10px;
 }
 
 .score,
