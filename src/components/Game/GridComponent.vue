@@ -1,24 +1,37 @@
 <script setup lang="ts">
 import { generateRequestID, openWebSocketConnection } from '@/helpers/websocket-cli'
 import { useGameInfoStore } from '@/stores/GameInfo'
-import { reactive, onMounted, onBeforeMount, toRaw } from 'vue'
+import { reactive, onMounted, onBeforeMount, toRaw, onUnmounted } from 'vue'
 import { onTick } from 'vue3-pixi'
 
 const state = reactive({
   sprites: [] as any[],
   selected: null as any | null,
+  selectedBuffer: null as any | null,
+  nextSelected: null as any | null,
+  nextSelectedBuffer: null as any | null,
   socket: null as WebSocket | null,
   gameState: null as GameState | null,
   matches: [] as any[],
-  deleted: false as Boolean
+  deleted: false as Boolean,
+  isMoveSuccessfull: false as Boolean
 })
 
 const gameInfo = useGameInfoStore()
 
 const SPRITE_WIDTH = 50
 const SPRITE_HEIGHT = 54
-const SCALE_X = 0.5
-const SCALE_Y = 0.5
+const SCALE_X = 0.45
+const SCALE_Y = 0.45
+
+const sounds = [
+  '/src/assets/sounds/move1.mp3',
+  '/src/assets/sounds/move2.mp3',
+  '/src/assets/sounds/move3.mp3',
+  '/src/assets/sounds/move4.mp3',
+  '/src/assets/sounds/move5.mp3',
+  '/src/assets/sounds/move6.mp3'
+]
 
 const mapGridPositionToLocalCanvas = (value, constant) => {
   return value * constant + constant / 2
@@ -52,21 +65,31 @@ const handleClick = (event: any) => {
   let from
   let to
   const element = event.currentTarget
-  let elementPosition: any = undefined
   if (!state.selected) {
-    elementPosition = element.position
     state.selected = element
+    state.selectedBuffer = {
+      position: {
+        x: element.position.x,
+        y: element.position.y
+      }
+    }
   } else {
     if (element !== state.selected) {
+      state.nextSelected = element
+      state.nextSelectedBuffer = {
+        position: {
+          x: element.position.x,
+          y: element.position.y
+        }
+      }
       from = toRaw(state.selected.positionGrid)
       to = toRaw(element.positionGrid)
-      // const bufferPosition = { x: state.selected.position.x, y: state.selected.position.y }
-      // state.selected.position = element.position
-      // element.position = bufferPosition
       moveHeartRequest(from, to)
+    } else {
+      state.selected.scale = { x: SCALE_X, y: SCALE_Y }
+      state.selected = null
+      state.selectedBuffer = null
     }
-    state.selected.scale = { x: SCALE_X, y: SCALE_Y }
-    state.selected = null
   }
 }
 
@@ -87,12 +110,15 @@ const initializeWebSocketConnection = () => {
       }
 
       if (response.path == '/game/move') {
+        const randomIndex = Math.floor(Math.random() * 6)
+        console.log('reponseMoveMatches', response.data.matches)
+        const moveSound = new Audio(sounds[randomIndex])
+        moveSound.volume = 0.4
         state.gameState = response.data as GameState
         state.matches = response.data.matches
-        console.log('game move response ws', response)
+        state.isMoveSuccessfull = true
         gameInfo.setScore(state.gameState.score)
-
-        // hydrateGrid()
+        moveSound.play()
       }
 
       console.log('vue state gameState', state.gameState)
@@ -144,6 +170,69 @@ const sendWebSocketRequest = (request: Object) => {
   }
 }
 
+const shrinkDeletedCells = () => {
+  let result = false
+  state.matches.forEach((match) => {
+    match.cells.forEach((matchCell) => {
+      state.sprites.forEach((sprite) => {
+        if (sprite.id == matchCell.id && sprite.scale.x > 0) {
+          sprite.scale.x -= 0.015
+          sprite.scale.y -= 0.015
+          if (sprite.scale.x <= 0 && sprite.scale.y <= 0) {
+            result = true
+          }
+        }
+      })
+    })
+  })
+  if (result) {
+    console.log('shrinked')
+    state.deleted = true
+    state.matches = []
+  }
+}
+
+function animationStateMachine(speed: number) {
+  if (state.selected.position.x < state.nextSelectedBuffer.position.x) {
+    console.log(state.nextSelectedBuffer.position.x)
+    state.selected.position.x += speed
+  }
+  if (state.nextSelected.position.x < state.selectedBuffer.position.x) {
+    state.nextSelected.position.x += speed
+  }
+  //Right to Left
+  if (state.selected.position.x > state.nextSelectedBuffer.position.x) {
+    state.selected.position.x -= speed
+  }
+  if (state.nextSelected.position.x > state.selectedBuffer.position.x) {
+    state.nextSelected.position.x -= speed
+  }
+  //Bottom to Up
+  if (state.selected.position.y < state.nextSelectedBuffer.position.y) {
+    state.selected.position.y += speed
+  }
+  if (state.nextSelected.position.y < state.selectedBuffer.position.y) {
+    state.nextSelected.position.y += speed
+  }
+
+  //Up to Bottom
+  if (state.selected.position.y > state.nextSelectedBuffer.position.y) {
+    state.selected.position.y -= speed
+  }
+  if (state.nextSelected.position.y > state.selectedBuffer.position.y) {
+    state.nextSelected.position.y -= speed
+  }
+
+  if (
+    state.selected.position.x == state.nextSelectedBuffer.position.x &&
+    state.selected.position.y == state.nextSelectedBuffer.position.y
+  ) {
+    state.selected = null
+    state.nextSelected = null
+    state.isMoveSuccessfull = false
+  }
+}
+
 onMounted(() => {
   // hydrateGrid()
 })
@@ -152,27 +241,22 @@ onBeforeMount(() => {
   initializeWebSocketConnection()
 })
 
+onUnmounted(() => {
+  state.socket?.close()
+})
+
 onTick(() => {
-  if (state.matches.length > 0) {
-    state.matches.forEach((match) => {
-      match.cells.forEach((matchCell) => {
-        state.sprites.forEach((sprite) => {
-          if (sprite.id == matchCell.id && sprite.scale.x > 0) {
-            sprite.scale.x -= 0.015
-            sprite.scale.y -= 0.015
-            if (sprite.scale.x <= 0 && sprite.scale.y <= 0) {
-              state.deleted = true
-              state.matches = []
-            }
-          }
-        })
-      })
-    })
+  if (state.matches.length > 0 && state.isMoveSuccessfull == false) {
+    shrinkDeletedCells()
   }
 
   if (state.deleted == true) {
     hydrateGrid()
     state.deleted = false
+  }
+
+  if (state.isMoveSuccessfull == true && state.selected && state.nextSelected) {
+    animationStateMachine(2)
   }
 
   if (state.selected) {

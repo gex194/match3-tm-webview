@@ -6,7 +6,7 @@ const container = useTemplateRef('container')
 </script>
 
 <template>
-  <div class="main-container" :ref="container">
+  <div class="main-container container" :ref="container">
     <Application :width="400" :height="430" :background-alpha="0" :resize-to="container">
       <container>
         <slot></slot>
@@ -15,4 +15,8 @@ const container = useTemplateRef('container')
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.container {
+  width: 96%;
+}
+</style>
