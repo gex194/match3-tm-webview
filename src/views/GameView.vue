@@ -4,7 +4,6 @@ import Renderer from '@/components/Game/RendererComponent.vue'
 import Grid from '@/components/Game/GridComponent.vue'
 import { onMounted, onUnmounted, reactive } from 'vue'
 import StyledButton from '@/components/StyledButton.vue'
-import TelegramInit from '@/components/TelegramInit.vue'
 
 const bgMusic = new Audio('/assets/sounds/background_music.mp3')
 const state = reactive({
@@ -28,7 +27,6 @@ onUnmounted(() => {
 
 <template>
   <main :class="state.isPlayButtonViewActive ? 'game-screen-button' : 'game-screen'">
-    <TelegramInit />
     <div class="button-container" v-if="!state.isPlayButtonPressed">
       <StyledButton @click="handlePlayButton">Play</StyledButton>
     </div>

@@ -1,8 +1,25 @@
 <script setup lang="ts">
-import { MainButton, useWebAppPopup } from 'vue-tg'
-const { showAlert } = useWebAppPopup()
+import { useTelegramStore } from '@/stores/telegram'
+import { onMounted } from 'vue'
+import { useWebApp } from 'vue-tg'
+const tgWebApp = useWebApp()
+const tgStore = useTelegramStore()
+
+const storeTgInitData = () => {
+  const { initData, initDataUnsafe } = tgWebApp
+  if (tgWebApp.isReady) {
+    tgStore.setInitData(initData)
+    tgStore.setTgUser(initDataUnsafe.user)
+  }
+}
+
+onMounted(() => {
+  tgWebApp.ready()
+  storeTgInitData()
+})
+console.log('initData', tgWebApp)
 </script>
 
 <template>
-  <MainButton text="OpenAlert" @click="() => showAlert('Hello!')" />
+  <div></div>
 </template>

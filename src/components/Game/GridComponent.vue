@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { generateRequestID, openWebSocketConnection } from '@/helpers/websocket-cli'
 import { useGameInfoStore } from '@/stores/GameInfo'
+import { useSocketStore } from '@/stores/socket'
 import { reactive, onMounted, onBeforeMount, toRaw, onUnmounted } from 'vue'
 import { onTick } from 'vue3-pixi'
 
@@ -10,13 +10,13 @@ const state = reactive({
   selectedBuffer: null as any | null,
   nextSelected: null as any | null,
   nextSelectedBuffer: null as any | null,
-  socket: null as WebSocket | null,
   gameState: null as GameState | null,
   matches: [] as any[],
   deleted: false as Boolean,
   isMoveSuccessfull: false as Boolean
 })
 
+const socketStore = useSocketStore()
 const gameInfo = useGameInfoStore()
 
 const SPRITE_WIDTH = 50
@@ -84,7 +84,7 @@ const handleClick = (event: any) => {
       }
       from = toRaw(state.selected.positionGrid)
       to = toRaw(element.positionGrid)
-      moveHeartRequest(from, to)
+      socketStore.moveRequest(from, to)
     } else {
       state.selected.scale = { x: SCALE_X, y: SCALE_Y }
       state.selected = null
@@ -93,81 +93,44 @@ const handleClick = (event: any) => {
   }
 }
 
-const initializeWebSocketConnection = () => {
-  state.socket = openWebSocketConnection()
-  state.socket.onopen = (event) => {
-    startGameRequest()
-  }
-  state.socket.onmessage = (event) => {
+const onGameStart = (response) => {
+  state.gameState = response.data as GameState
+  gameInfo.setTime(state.gameState.duration)
+  hydrateGrid()
+}
+
+const onGameMove = (response) => {
+  const randomIndex = Math.floor(Math.random() * 6)
+  console.log('reponseMoveMatches', response.data.matches)
+  const moveSound = new Audio(sounds[randomIndex])
+  moveSound.volume = 0.4
+  state.gameState = response.data as GameState
+  state.matches = response.data.matches
+  state.isMoveSuccessfull = true
+  gameInfo.setScore(state.gameState.score)
+  moveSound.play()
+}
+
+const initializeWebSocketHandler = () => {
+  socketStore.socket?.addEventListener('message', (event: MessageEvent<any>) => {
     try {
       const response = JSON.parse(event.data)
       console.log('response from ws', response)
       console.log('event from message ws', event)
       if (response.path == '/game/start_game') {
-        state.gameState = response.data as GameState
-        gameInfo.setTime(state.gameState.duration)
-        hydrateGrid()
+        console.log('HUI')
+        onGameStart(response)
       }
 
       if (response.path == '/game/move') {
-        const randomIndex = Math.floor(Math.random() * 6)
-        console.log('reponseMoveMatches', response.data.matches)
-        const moveSound = new Audio(sounds[randomIndex])
-        moveSound.volume = 0.4
-        state.gameState = response.data as GameState
-        state.matches = response.data.matches
-        state.isMoveSuccessfull = true
-        gameInfo.setScore(state.gameState.score)
-        moveSound.play()
+        onGameMove(response)
       }
 
       console.log('vue state gameState', state.gameState)
     } catch (error) {
       console.error('Error parsing message:', error)
     }
-  }
-}
-
-const startGameRequest = () => {
-  const requestBody = {
-    telegram_id: 123
-  }
-
-  const request = {
-    path: '/game/start_game',
-    request_id: generateRequestID(),
-    body: requestBody
-  }
-
-  sendWebSocketRequest(request)
-}
-
-const moveHeartRequest = (from, to) => {
-  const request = {
-    path: '/game/move',
-    request_id: generateRequestID(),
-    body: {
-      move: {
-        from: from,
-        to: to
-      },
-      session_id: state.gameState?.session_id,
-      player_id: '1'
-    }
-  }
-
-  sendWebSocketRequest(request)
-}
-
-const sendWebSocketRequest = (request: Object) => {
-  console.log('sendWebSocketRequest Sending request:', request)
-  // Убедитесь, что WebSocket соединение установлено перед отправкой сообщения
-  if (state.socket && state.socket.readyState === WebSocket.OPEN) {
-    // clearError();  // Очищаем ошибки перед отправкой запроса
-    state.socket.send(JSON.stringify(request))
-  } else {
-    console.log('WebSocket connection is not open. Cannot send move.')
-  }
+  })
 }
 
 const shrinkDeletedCells = () => {
@@ -234,15 +197,15 @@ function animationStateMachine(speed: number) {
 }
 
 onMounted(() => {
-  // hydrateGrid()
+  socketStore.startGameRequest()
 })
 
 onBeforeMount(() => {
-  initializeWebSocketConnection()
+  initializeWebSocketHandler()
 })
 
 onUnmounted(() => {
-  state.socket?.close()
+  socketStore.closeWebSocketConnection()
 })
 
 onTick(() => {
