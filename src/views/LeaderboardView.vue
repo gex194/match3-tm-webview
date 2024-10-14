@@ -12,7 +12,7 @@ const handleClose = () => {
 <template>
   <div class="container">
     <div class="logo-container">
-      <img class="logo" src="/src/assets/images/logo.png" />
+      <img class="logo" src="/assets/images/logo.png" />
     </div>
     <div class="top-title-container">
       <span class="gameria-text top-title">TOP PLAYERS</span>

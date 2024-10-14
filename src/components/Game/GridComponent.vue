@@ -25,12 +25,12 @@ const SCALE_X = 0.45
 const SCALE_Y = 0.45
 
 const sounds = [
-  '/src/assets/sounds/move1.mp3',
-  '/src/assets/sounds/move2.mp3',
-  '/src/assets/sounds/move3.mp3',
-  '/src/assets/sounds/move4.mp3',
-  '/src/assets/sounds/move5.mp3',
-  '/src/assets/sounds/move6.mp3'
+  '/assets/sounds/move1.mp3',
+  '/assets/sounds/move2.mp3',
+  '/assets/sounds/move3.mp3',
+  '/assets/sounds/move4.mp3',
+  '/assets/sounds/move5.mp3',
+  '/assets/sounds/move6.mp3'
 ]
 
 const mapGridPositionToLocalCanvas = (value, constant) => {
@@ -53,7 +53,7 @@ const hydrateGrid = () => {
           y: mapGridPositionToLocalCanvas(grid[x][y].position.col, SPRITE_HEIGHT)
         },
         positionGrid: grid[x][y].position,
-        texture: `/src/assets/images/hearts/${grid[x][y].type}.png`,
+        texture: `/assets/images/hearts/${grid[x][y].type}.png`,
         scale: { x: SCALE_X, y: SCALE_Y }
       }
       state.sprites.push(spriteData)

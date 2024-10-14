@@ -16,10 +16,10 @@ const handleSubmit = () => {
 <template>
   <div class="container">
     <div class="waifu-container">
-      <img class="waifu-img" src="/src/assets/images/waifu-result-screen.png" />
+      <img class="waifu-img" src="/assets/images/waifu-result-screen.png" />
     </div>
     <div class="logo-container">
-      <img class="logo" src="/src/assets/images/logo.png" />
+      <img class="logo" src="/assets/images/logo.png" />
     </div>
     <div name="result-block">
       <div class="time-result">

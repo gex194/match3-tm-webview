@@ -4,8 +4,9 @@ import Renderer from '@/components/Game/RendererComponent.vue'
 import Grid from '@/components/Game/GridComponent.vue'
 import { onMounted, onUnmounted, reactive } from 'vue'
 import StyledButton from '@/components/StyledButton.vue'
+import TelegramInit from '@/components/TelegramInit.vue'
 
-const bgMusic = new Audio('/src/assets/sounds/background_music.mp3')
+const bgMusic = new Audio('/assets/sounds/background_music.mp3')
 const state = reactive({
   isPlayButtonPressed: false,
   isPlayButtonViewActive: true
@@ -27,6 +28,7 @@ onUnmounted(() => {
 
 <template>
   <main :class="state.isPlayButtonViewActive ? 'game-screen-button' : 'game-screen'">
+    <TelegramInit />
     <div class="button-container" v-if="!state.isPlayButtonPressed">
       <StyledButton @click="handlePlayButton">Play</StyledButton>
     </div>
@@ -36,7 +38,7 @@ onUnmounted(() => {
         <Grid />
       </Renderer>
       <div>
-        <img src="/src/assets/images/duck.gif" width="150" height="150" />
+        <img src="/assets/images/duck.gif" width="150" height="150" />
       </div>
     </div>
   </main>
@@ -50,7 +52,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  background-image: url('/src/assets/images/waifu-game-screen.png');
+  background-image: url('/assets/images/waifu-game-screen.png');
   background-repeat: no-repeat;
   background-size: cover;
 }
@@ -63,7 +65,7 @@ onUnmounted(() => {
   flex-direction: column;
   justify-content: center;
   flex-grow: 1;
-  background-image: url('/src/assets/images/waifu-game-screen.png');
+  background-image: url('/assets/images/waifu-game-screen.png');
   background-repeat: no-repeat;
   background-size: cover;
 }
