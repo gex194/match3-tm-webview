@@ -2,7 +2,7 @@
 import { useGameInfoStore } from '@/stores/GameInfo'
 import { useSocketStore } from '@/stores/socket'
 import { reactive, onMounted, onBeforeMount, toRaw, onUnmounted } from 'vue'
-import { onTick } from 'vue3-pixi'
+import { Loader, onTick } from 'vue3-pixi'
 
 const state = reactive({
   sprites: [] as any[],
@@ -12,8 +12,10 @@ const state = reactive({
   nextSelectedBuffer: null as any | null,
   gameState: null as GameState | null,
   matches: [] as any[],
+  newCells: [] as any[],
   deleted: false as Boolean,
-  isMoveSuccessfull: false as Boolean
+  isMoveSuccessfull: false as Boolean,
+  animationTextures: [] as any[]
 })
 
 const socketStore = useSocketStore()
@@ -32,6 +34,12 @@ const sounds = [
   '/assets/sounds/move5.mp3',
   '/assets/sounds/move6.mp3'
 ]
+
+const initAnimationSpriteTextures = () => {
+  for (let x = 0; x < 17; x++) {
+    state.animationTextures.push(`frame_0${x}_delay-0.04s.png`)
+  }
+}
 
 const mapGridPositionToLocalCanvas = (value, constant) => {
   return value * constant + constant / 2
@@ -106,6 +114,7 @@ const onGameMove = (response) => {
   moveSound.volume = 0.4
   state.gameState = response.data as GameState
   state.matches = response.data.matches
+  state.newCells = response.data.new_cells
   state.isMoveSuccessfull = true
   gameInfo.setScore(state.gameState.score)
   moveSound.play()
@@ -139,8 +148,11 @@ const shrinkDeletedCells = () => {
     match.cells.forEach((matchCell) => {
       state.sprites.forEach((sprite) => {
         if (sprite.id == matchCell.id && sprite.scale.x > 0) {
-          sprite.scale.x -= 0.015
-          sprite.scale.y -= 0.015
+          sprite.scale.x = 0
+          sprite.scale.y = 0
+
+          // sprite.scale.x -= 0.02
+          // sprite.scale.y -= 0.02
           if (sprite.scale.x <= 0 && sprite.scale.y <= 0) {
             result = true
           }
@@ -150,8 +162,10 @@ const shrinkDeletedCells = () => {
   })
   if (result) {
     console.log('shrinked')
-    state.deleted = true
-    state.matches = []
+    setTimeout(() => {
+      state.deleted = true
+      state.matches = []
+    }, 490)
   }
 }
 
@@ -201,6 +215,7 @@ onMounted(() => {
 })
 
 onBeforeMount(() => {
+  initAnimationSpriteTextures()
   initializeWebSocketHandler()
 })
 
@@ -230,22 +245,40 @@ onTick(() => {
 })
 </script>
 <template>
-  <sprite
-    v-for="sprite in state.sprites"
-    :key="sprite.id"
-    @mousedown="handleClick"
-    @touchstart="handleClick"
-    event-mode="dynamic"
-    :button-mode="true"
-    :scale-x="sprite.scale.x"
-    :scale-y="sprite.scale.y"
-    :position-x="sprite.position.x"
-    :position-y="sprite.position.y"
-    :anchor-x="sprite.anchor.x"
-    :anchor-y="sprite.anchor.y"
-    :texture="sprite.texture"
-    :name="sprite.name"
-    :positionGrid="sprite.positionGrid"
-  />
+  <Loader :resources="['/assets/animation_data/explosion_data_file.json']">
+    <Container>
+      <animated-sprite
+        v-for="match in state.newCells"
+        :key="match.id"
+        :textures="state.animationTextures"
+        :playing="!state.isMoveSuccessfull"
+        :loop="false"
+        :animation-speed="0.45"
+        :anchor="0.5"
+        :x="mapGridPositionToLocalCanvas(match.position.row, SPRITE_WIDTH) + 10"
+        :y="mapGridPositionToLocalCanvas(match.position.col, SPRITE_HEIGHT)"
+        :scale="0.3"
+        :z-index="1"
+      />
+      <sprite
+        v-for="sprite in state.sprites"
+        :key="sprite.id"
+        @mousedown="handleClick"
+        @touchstart="handleClick"
+        event-mode="dynamic"
+        :button-mode="true"
+        :scale-x="sprite.scale.x"
+        :scale-y="sprite.scale.y"
+        :position-x="sprite.position.x"
+        :position-y="sprite.position.y"
+        :anchor-x="sprite.anchor.x"
+        :anchor-y="sprite.anchor.y"
+        :texture="sprite.texture"
+        :name="sprite.name"
+        :positionGrid="sprite.positionGrid"
+        :z-index="0"
+      />
+    </Container>
+  </Loader>
 </template>
 <style scoped></style>
