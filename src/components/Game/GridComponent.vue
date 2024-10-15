@@ -21,8 +21,10 @@ const state = reactive({
 const socketStore = useSocketStore()
 const gameInfo = useGameInfoStore()
 
-const SPRITE_WIDTH = 50
-const SPRITE_HEIGHT = 54
+const innerWidth = window.innerWidth - 20
+const innerHeight = window.innerHeight - 20
+const SPRITE_WIDTH = Math.floor(innerWidth / 8) //50
+const SPRITE_HEIGHT = 54 //54
 const SCALE_X = 0.45
 const SCALE_Y = 0.45
 
@@ -150,9 +152,6 @@ const shrinkDeletedCells = () => {
         if (sprite.id == matchCell.id && sprite.scale.x > 0) {
           sprite.scale.x = 0
           sprite.scale.y = 0
-
-          // sprite.scale.x -= 0.02
-          // sprite.scale.y -= 0.02
           if (sprite.scale.x <= 0 && sprite.scale.y <= 0) {
             result = true
           }
@@ -234,7 +233,7 @@ onTick(() => {
   }
 
   if (state.isMoveSuccessfull == true && state.selected && state.nextSelected) {
-    animationStateMachine(2)
+    animationStateMachine(1)
   }
 
   if (state.selected) {
