@@ -218,10 +218,6 @@ onBeforeMount(() => {
   initializeWebSocketHandler()
 })
 
-onUnmounted(() => {
-  socketStore.closeWebSocketConnection()
-})
-
 onTick(() => {
   if (state.matches.length > 0 && state.isMoveSuccessfull == false) {
     shrinkDeletedCells()

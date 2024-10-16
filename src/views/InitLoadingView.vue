@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TelegramInit from '@/components/TelegramInit.vue'
 import { useSocketStore } from '@/stores/socket'
-import { onMounted, onUpdated } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const socketStore = useSocketStore()

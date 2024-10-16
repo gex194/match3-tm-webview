@@ -1,16 +1,51 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import StyledButton from '@/components/StyledButton.vue'
 import { useGameInfoStore } from '@/stores/GameInfo'
+import { useSocketStore } from '@/stores/socket'
 
 const inputValue = ref('test value')
+const errorText = ref('')
+const error = ref(false)
 const router = useRouter()
 const gameInfo = useGameInfoStore()
+const socketStore = useSocketStore()
 
 const handleSubmit = () => {
-  router.push({ name: 'leaderboard' })
+  socketStore.updateWalletRequest(inputValue.value)
 }
+
+const socketErrorHandler = () => {
+  socketStore.socket?.addEventListener('message', (event) => {
+    try {
+      const response = JSON.parse(event.data)
+      console.log('response data', response.data)
+      if (response.code == 500) {
+        error.value = true
+        errorText.value = response.error
+      }
+
+      if (response.status == 200) {
+        error.value = false
+        errorText.value = ''
+        router.push({ name: 'leaderboard' })
+      }
+    } catch (error: any) {
+      console.log('Error', error)
+    }
+  })
+}
+
+const handleInput = (e) => {
+  inputValue.value = e.target.value
+  error.value = false
+  errorText.value = ''
+}
+
+onMounted(() => {
+  socketErrorHandler()
+})
 </script>
 
 <template>
@@ -21,7 +56,7 @@ const handleSubmit = () => {
     <div class="logo-container">
       <img class="logo" src="/assets/images/logo.png" />
     </div>
-    <div name="result-block">
+    <div name="result-block" class="result-block">
       <div class="time-result">
         <span class="roksana-text time-title">Time</span>
         <span class="gameria-text time-value">{{ gameInfo.time }}</span>
@@ -31,8 +66,17 @@ const handleSubmit = () => {
         <span class="gameria-text score-value">{{ gameInfo.score }}</span>
       </div>
     </div>
-    <div name="result-personal">
-      <input class="result-personal-input" :value="inputValue" />
+    <div name="result-personal" class="input-container">
+      <span></span>
+      <label for="wallet" class="error">&nbsp;{{ errorText }}</label>
+      <input
+        id="wallet"
+        class="result-personal-input"
+        :class="errorText ? 'input-error' : ''"
+        type="text"
+        :value="inputValue"
+        @input="handleInput"
+      />
     </div>
     <div>
       <StyledButton @click="handleSubmit">Submit</StyledButton>
@@ -41,6 +85,35 @@ const handleSubmit = () => {
 </template>
 
 <style>
+.hidden {
+  visibility: hidden;
+}
+
+.unhidden {
+  visibility: visible;
+}
+.result-block {
+  display: flex;
+  flex-direction: column;
+}
+.error {
+  position: relative;
+  color: red;
+  font-size: 20px;
+  font-weight: 600;
+  text-shadow: rgb(255, 255, 255) 1px 0 20px;
+  padding: 10px;
+}
+
+.input-error {
+  border-color: red;
+  color: red;
+}
+.input-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .container {
   display: flex;
   flex-direction: column;

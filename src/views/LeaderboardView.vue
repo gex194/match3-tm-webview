@@ -1,12 +1,25 @@
 <script setup lang="ts">
 import StyledButton from '@/components/StyledButton.vue'
+import { useGameInfoStore } from '@/stores/GameInfo'
+import { useSocketStore } from '@/stores/socket'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const socketStore = useSocketStore()
+const gameInfo = useGameInfoStore()
 
 const handleClose = () => {
   router.push('/')
 }
+
+const shrinkWalletString = (str: string) => {
+  return str.substring(0, 5) + '.....' + str.substring(str.length - 5, str.length)
+}
+
+onMounted(() => {
+  socketStore.leaderboardRequest()
+})
 </script>
 
 <template>
@@ -18,18 +31,18 @@ const handleClose = () => {
       <span class="gameria-text top-title">TOP PLAYERS</span>
     </div>
     <div name="leaderboard" class="leaderboard-container main-container">
-      <ul>
-        <li class="gameria-text leaderboard-content">
-          <div class="leaderboard-position">1</div>
-          <div class="leaderboard-score">123321</div>
-          <div class="leaderboard-name">Test 1</div>
-        </li>
-        <li class="gameria-text leaderboard-content">
-          <div class="leaderboard-position">1</div>
-          <div class="leaderboard-score">123322221</div>
-          <div class="leaderboard-name">Te42424242</div>
+      <ul v-if="gameInfo.leaderboard">
+        <li
+          class="gameria-text leaderboard-content"
+          v-for="leader in gameInfo.leaderboard.leaders"
+          :key="leader.wallet"
+        >
+          <div class="leaderboard-position">{{ leader.place }}</div>
+          <div class="leaderboard-score">{{ leader.score }}</div>
+          <div class="leaderboard-name">{{ shrinkWalletString(leader.wallet) }}</div>
         </li>
       </ul>
+      <div v-else class="gameria-text">No players in leaderboard :C</div>
     </div>
     <div class="button-container">
       <StyledButton @click="handleClose">Close</StyledButton>

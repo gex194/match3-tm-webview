@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { useGameInfoStore } from '@/stores/GameInfo'
-import { ref, onMounted } from 'vue'
+import { useGameInfoStore } from '@/stores/gameInfo'
+import { useSocketStore } from '@/stores/socket'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const timer = ref(20)
 
 const gameInfo = useGameInfoStore()
+const socketStore = useSocketStore()
 
 const countDownTimer = () => {
   if (timer.value > 0) {
@@ -14,14 +16,18 @@ const countDownTimer = () => {
       countDownTimer()
     }, 1000)
   } else {
+    socketStore.finishGameRequest()
     router.push('/result')
   }
 }
 
-onMounted(() => {
-  timer.value = gameInfo.time + 30
-  // countDownTimer()
-})
+watch(
+  () => gameInfo.time,
+  () => {
+    timer.value = gameInfo.time
+    countDownTimer()
+  }
+)
 </script>
 
 <template>
