@@ -2,13 +2,15 @@
 import TopPanel from '@/components/TopPanel.vue'
 import Renderer from '@/components/Game/RendererComponent.vue'
 import Grid from '@/components/Game/GridComponent.vue'
-import { onMounted, onUnmounted, reactive } from 'vue'
+import { onUnmounted, reactive } from 'vue'
 import StyledButton from '@/components/StyledButton.vue'
+import { onBeforeRouteLeave } from 'vue-router'
 
 const bgMusic = new Audio('/assets/sounds/background_music.mp3')
 const state = reactive({
   isPlayButtonPressed: false,
-  isPlayButtonViewActive: true
+  isPlayButtonViewActive: true,
+  routeLeave: false
 })
 
 const handlePlayButton = () => {
@@ -19,7 +21,10 @@ const handlePlayButton = () => {
   bgMusic.loop = true
 }
 
-onMounted(() => {})
+onBeforeRouteLeave(() => {
+  state.routeLeave = true
+})
+
 onUnmounted(() => {
   bgMusic.pause()
 })
@@ -32,7 +37,7 @@ onUnmounted(() => {
     </div>
     <div class="game-screen-container" v-else>
       <TopPanel />
-      <Renderer>
+      <Renderer :class="state.routeLeave ? 'renderer-hide' : 'renderer-show'">
         <Grid />
       </Renderer>
       <div>
@@ -43,6 +48,13 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.renderer-hide {
+  opacity: 0;
+}
+
+.renderer-show {
+  opacity: 1;
+}
 .game-screen {
   width: 100%;
   height: 100%;
@@ -71,7 +83,7 @@ onUnmounted(() => {
 .game-screen-container {
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: 10px;
   align-items: center;
   justify-content: center;
 }

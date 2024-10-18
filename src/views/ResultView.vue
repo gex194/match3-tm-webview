@@ -2,9 +2,10 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import StyledButton from '@/components/StyledButton.vue'
-import { useGameInfoStore } from '@/stores/GameInfo'
+import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
 
+const show = ref(false)
 const inputValue = ref('test value')
 const errorText = ref('')
 const error = ref(false)
@@ -16,17 +17,22 @@ const handleSubmit = () => {
   socketStore.updateWalletRequest(inputValue.value)
 }
 
+const handleClose = () => {
+  socketStore.closeWebSocketConnection()
+  router.push('/')
+}
+
 const socketErrorHandler = () => {
   socketStore.socket?.addEventListener('message', (event) => {
     try {
       const response = JSON.parse(event.data)
       console.log('response data', response.data)
-      if (response.code == 500) {
+      if (response.path == '/game/update_wallet' && response.code == 500) {
         error.value = true
         errorText.value = response.error
       }
 
-      if (response.status == 200) {
+      if (response.path == '/game/update_wallet' && response.status == 200) {
         error.value = false
         errorText.value = ''
         router.push({ name: 'leaderboard' })
@@ -44,47 +50,62 @@ const handleInput = (e) => {
 }
 
 onMounted(() => {
+  setTimeout(() => {
+    show.value = true
+  }, 700)
   socketErrorHandler()
 })
 </script>
 
 <template>
-  <div class="container">
-    <div class="waifu-container">
-      <img class="waifu-img" src="/assets/images/waifu-result-screen.png" />
-    </div>
-    <div class="logo-container">
-      <img class="logo" src="/assets/images/logo.png" />
-    </div>
-    <div name="result-block" class="result-block">
-      <div class="time-result">
-        <span class="roksana-text time-title">Time</span>
-        <span class="gameria-text time-value">{{ gameInfo.time }}</span>
+  <div>
+    <Transition name="fade">
+      <div class="container" v-show="show">
+        <div class="waifu-container">
+          <img class="waifu-img" src="/assets/images/waifu-result-screen.png" />
+        </div>
+        <div class="logo-container">
+          <img class="logo" src="/assets/images/logo.png" />
+        </div>
+        <div name="result-block" class="result-block">
+          <div class="time-result">
+            <span class="roksana-text time-title">Time</span>
+            <span class="gameria-text time-value">{{ gameInfo.time }}</span>
+          </div>
+          <div class="score-result">
+            <span class="roksana-text score-title">Score</span>
+            <span class="gameria-text score-value">{{ gameInfo.score }}</span>
+          </div>
+        </div>
+        <div name="result-personal" class="input-container">
+          <span></span>
+          <label for="wallet" class="error">&nbsp;{{ errorText }}</label>
+          <input
+            id="wallet"
+            class="result-personal-input"
+            :class="errorText ? 'input-error' : ''"
+            type="text"
+            :value="inputValue"
+            @input="handleInput"
+          />
+        </div>
+        <div class="buttons-container">
+          <StyledButton @click="handleSubmit">Submit</StyledButton>
+          <StyledButton @click="handleClose">Retry</StyledButton>
+        </div>
       </div>
-      <div class="score-result">
-        <span class="roksana-text score-title">Score</span>
-        <span class="gameria-text score-value">{{ gameInfo.score }}</span>
-      </div>
-    </div>
-    <div name="result-personal" class="input-container">
-      <span></span>
-      <label for="wallet" class="error">&nbsp;{{ errorText }}</label>
-      <input
-        id="wallet"
-        class="result-personal-input"
-        :class="errorText ? 'input-error' : ''"
-        type="text"
-        :value="inputValue"
-        @input="handleInput"
-      />
-    </div>
-    <div>
-      <StyledButton @click="handleSubmit">Submit</StyledButton>
-    </div>
+    </Transition>
   </div>
 </template>
 
 <style>
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
 .hidden {
   visibility: hidden;
 }

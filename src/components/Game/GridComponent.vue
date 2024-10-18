@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useGameInfoStore } from '@/stores/GameInfo'
+import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
-import { reactive, onMounted, onBeforeMount, toRaw, onUnmounted } from 'vue'
+import { reactive, onMounted, onBeforeMount, toRaw } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import { Loader, onTick } from 'vue3-pixi'
 
 const state = reactive({

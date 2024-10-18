@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { generateRequestID } from '@/helpers/websocket-cli'
 import { useTelegramStore } from './telegram'
-import { useGameInfoStore } from './GameInfo'
+import { useGameInfoStore } from './gameInfo'
 
 export const useSocketStore = defineStore('socket', () => {
   const socket = ref<WebSocket | null>(null)
@@ -12,10 +12,10 @@ export const useSocketStore = defineStore('socket', () => {
   const baseWsUrl = import.meta.env.VITE_BASE_WS_URL
   const baseWsUrlLocal = 'ws://localhost:3032/ws?'
   const localTgInitData =
-    'query_id=AAGkLwkGAAAAAKQvCQbFm8dy&user=%7B%22id%22%3A101265316%2C%22first_name%22%3A%22Andrei%22%2C%22last_name%22%3A%22Vasilev%22%2C%22username%22%3A%22zest194%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1729098729&hash=b4b7d149e1a26354a123875e8f93e81b4ee2da3ccbd22ba4966c0f5424fa506e'
+    'query_id=AAGkLwkGAAAAAKQvCQbkcRJ5&user=%7B%22id%22%3A101265316%2C%22first_name%22%3A%22Andrei%22%2C%22last_name%22%3A%22Vasilev%22%2C%22username%22%3A%22zest194%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1729268236&hash=a321a1b21b6205a115bba9fdc5907892b58d1eb276a5ac52f07f5c58a3679c33'
 
   const openWebSocketConnection = () => {
-    socket.value = new WebSocket(baseWsUrlLocal + localTgInitData)
+    socket.value = new WebSocket(baseWsUrl + tgStore.tgInitData)
 
     socket.value.addEventListener('open', (event: Event) => {
       console.log('Connected to webSocket server')
@@ -122,6 +122,10 @@ export const useSocketStore = defineStore('socket', () => {
 
   const closeWebSocketConnection = () => {
     socket.value?.close()
+    gameInfo.score = 0
+    gameInfo.time = 0
+    session_id.value = ''
+    socket.value = null
   }
 
   const sendWebSocketRequest = (request: Object) => {

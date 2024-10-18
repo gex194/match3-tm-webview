@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import StyledButton from '@/components/StyledButton.vue'
-import { useGameInfoStore } from '@/stores/GameInfo'
+import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const socketStore = useSocketStore()
 const gameInfo = useGameInfoStore()
 
+const state = reactive({
+  show: false
+})
+
 const handleClose = () => {
+  socketStore.closeWebSocketConnection()
   router.push('/')
 }
 
@@ -19,34 +24,41 @@ const shrinkWalletString = (str: string) => {
 
 onMounted(() => {
   socketStore.leaderboardRequest()
+  setTimeout(() => {
+    state.show = true
+  }, 700)
 })
 </script>
 
 <template>
-  <div class="container">
-    <div class="logo-container">
-      <img class="logo" src="/assets/images/logo.png" />
-    </div>
-    <div class="top-title-container">
-      <span class="gameria-text top-title">TOP PLAYERS</span>
-    </div>
-    <div name="leaderboard" class="leaderboard-container main-container">
-      <ul v-if="gameInfo.leaderboard">
-        <li
-          class="gameria-text leaderboard-content"
-          v-for="leader in gameInfo.leaderboard.leaders"
-          :key="leader.wallet"
-        >
-          <div class="leaderboard-position">{{ leader.place }}</div>
-          <div class="leaderboard-score">{{ leader.score }}</div>
-          <div class="leaderboard-name">{{ shrinkWalletString(leader.wallet) }}</div>
-        </li>
-      </ul>
-      <div v-else class="gameria-text">No players in leaderboard :C</div>
-    </div>
-    <div class="button-container">
-      <StyledButton @click="handleClose">Close</StyledButton>
-    </div>
+  <div>
+    <Transition name="fade">
+      <div class="container" v-show="state.show">
+        <div class="logo-container">
+          <img class="logo" src="/assets/images/logo.png" />
+        </div>
+        <div class="top-title-container">
+          <span class="gameria-text top-title">TOP PLAYERS</span>
+        </div>
+        <div name="leaderboard" class="leaderboard-container main-container">
+          <ul v-if="gameInfo.leaderboard">
+            <li
+              class="gameria-text leaderboard-content"
+              v-for="leader in gameInfo.leaderboard.leaders"
+              :key="leader.wallet"
+            >
+              <div class="leaderboard-position">{{ leader.place }}</div>
+              <div class="leaderboard-score">{{ leader.score }}</div>
+              <div class="leaderboard-name">{{ shrinkWalletString(leader.wallet) }}</div>
+            </li>
+          </ul>
+          <div v-else class="gameria-text">No players in leaderboard :C</div>
+        </div>
+        <div class="button-container">
+          <StyledButton @click="handleClose">Close</StyledButton>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 

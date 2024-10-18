@@ -3,10 +3,24 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <RouterView />
+  <RouterView v-slot="{ Component }">
+    <Transition name="slide">
+      <Component :is="Component" />
+    </Transition>
+  </RouterView>
 </template>
 
 <style scoped>
+.slide-leave-active,
+.slide-enter-active {
+  transition: 0.3s;
+}
+.slide-enter {
+  transform: translate(100%, 0);
+}
+.slide-leave-to {
+  transform: translate(-100%, 0);
+}
 header {
   line-height: 1.5;
   max-height: 100vh;
