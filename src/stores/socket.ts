@@ -10,9 +10,6 @@ export const useSocketStore = defineStore('socket', () => {
   const tgStore = useTelegramStore()
   const gameInfo = useGameInfoStore()
   const baseWsUrl = import.meta.env.VITE_BASE_WS_URL
-  const baseWsUrlLocal = 'ws://localhost:3032/ws?'
-  const localTgInitData =
-    'query_id=AAGkLwkGAAAAAKQvCQbkcRJ5&user=%7B%22id%22%3A101265316%2C%22first_name%22%3A%22Andrei%22%2C%22last_name%22%3A%22Vasilev%22%2C%22username%22%3A%22zest194%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1729268236&hash=a321a1b21b6205a115bba9fdc5907892b58d1eb276a5ac52f07f5c58a3679c33'
 
   const openWebSocketConnection = () => {
     socket.value = new WebSocket(baseWsUrl + tgStore.tgInitData)
