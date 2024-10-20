@@ -53,6 +53,7 @@ const handleInput = (e): void => {
 }
 
 onMounted(() => {
+  inputValue.value = socketStore.wallet
   setTimeout(() => {
     show.value = true
   }, 700)

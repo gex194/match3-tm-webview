@@ -5,10 +5,12 @@ import { useTelegramStore } from './telegram'
 import { useGameInfoStore } from './gameInfo'
 
 export const useSocketStore = defineStore('socket', () => {
-  const socket = ref<WebSocket | null>(null)
-  const session_id = ref<string | null>('')
   const tgStore = useTelegramStore()
   const gameInfo = useGameInfoStore()
+
+  const socket = ref<WebSocket | null>(null)
+  const session_id = ref<string | null>('')
+  const wallet = ref<string>('')
   const baseWsUrl = import.meta.env.VITE_BASE_WS_URL
 
   const openWebSocketConnection = () => {
@@ -36,6 +38,10 @@ export const useSocketStore = defineStore('socket', () => {
         if (response.path == '/game/leaderboard') {
           console.log('leaderboard', response.data)
           gameInfo.setLeaderboard(response.data)
+        }
+
+        if (response.path == '/game/finish_game') {
+          wallet.value = response.data.wallet
         }
       } catch (error: any) {
         console.log('Error', error)
@@ -137,6 +143,7 @@ export const useSocketStore = defineStore('socket', () => {
   return {
     socket,
     session_id,
+    wallet,
     openWebSocketConnection,
     startGameRequest,
     moveRequest,
