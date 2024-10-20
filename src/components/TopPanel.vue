@@ -3,13 +3,14 @@ import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-const router = useRouter()
-const timer = ref(20)
 
+const router = useRouter()
 const gameInfo = useGameInfoStore()
 const socketStore = useSocketStore()
 
-const countDownTimer = () => {
+const timer = ref<number>(20)
+
+const countDownTimer = (): void => {
   if (timer.value > 0) {
     setTimeout(() => {
       timer.value -= 1

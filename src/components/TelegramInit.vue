@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { useTelegramStore } from '@/stores/telegram'
 import { onMounted } from 'vue'
-import { useWebApp } from 'vue-tg'
+import { useWebApp, useWebAppViewport } from 'vue-tg'
+
 const tgWebApp = useWebApp()
+const tgWebAppViewPort = useWebAppViewport()
 const tgStore = useTelegramStore()
 
-const storeTgInitData = () => {
+const storeTgInitData = (): void => {
   const { initData, initDataUnsafe } = tgWebApp
   if (tgWebApp.isReady) {
+    tgWebAppViewPort.expand()
     tgStore.setInitData(initData)
     tgStore.setTgUser(initDataUnsafe.user)
   }

@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, useTemplateRef } from 'vue'
+import { useTemplateRef } from 'vue'
 import { Application } from 'vue3-pixi'
 
 const container = useTemplateRef<string>('container')
-const innerWidth = window.innerWidth - 20
-const innerHeight = window.innerHeight - 20
-
-onMounted(() => {
-  console.log('CONTAINER', container.value)
-})
+const innerWidth: number = window.innerWidth - 20
 </script>
 
 <template>

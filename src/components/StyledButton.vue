@@ -18,6 +18,6 @@
   cursor: pointer;
 }
 .button-title {
-  font-size: 45px;
+  font-size: 40px;
 }
 </style>

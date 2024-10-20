@@ -5,6 +5,9 @@ import { Rectangle } from 'pixi.js'
 import { reactive, onMounted, onBeforeMount, toRaw } from 'vue'
 import { Loader, onTick, type SpriteComponent } from 'vue3-pixi'
 
+const socketStore = useSocketStore()
+const gameInfo = useGameInfoStore()
+
 const state = reactive({
   sprites: [] as any[],
   selected: null as any | null,
@@ -13,16 +16,15 @@ const state = reactive({
   nextSelectedBuffer: null as any | null,
   gameState: null as GameState | null,
   matches: [] as any[],
+  explosionsArray: [] as any[],
   newCells: [] as any[],
   deleted: false as Boolean,
   isMoveSuccessfull: false as Boolean,
   animationTextures: [] as any[],
   isMoving: false as Boolean,
-  animationSpeed: 5 as number
+  animationSpeed: 3 as number,
+  deleteDelay: 1000 as number
 })
-
-const socketStore = useSocketStore()
-const gameInfo = useGameInfoStore()
 
 const innerWidth = window.innerWidth - 20
 const SPRITE_WIDTH = Math.floor(innerWidth / 8) //50
@@ -40,12 +42,16 @@ const sounds = [
 ]
 
 const initAnimationSpriteTextures = () => {
-  for (let x = 0; x < 17; x++) {
+  for (let x = 0; x < 10; x++) {
     state.animationTextures.push(`frame_0${x}_delay-0.04s.png`)
+  }
+
+  for (let x = 10; x < 17; x++) {
+    state.animationTextures.push(`frame_${x}_delay-0.04s.png`)
   }
 }
 
-const mapGridPositionToLocalCanvas = (value: number, constant: number) => {
+const mapGridPositionToLocalCanvas = (value: number, constant: number): number => {
   return value * constant + constant / 2
 }
 
@@ -153,6 +159,7 @@ const initializeWebSocketHandler = () => {
     try {
       const response = JSON.parse(event.data)
       console.log('response from ws', response)
+
       if (response.path == '/game/start_game') {
         onGameStart(response)
       }
@@ -175,33 +182,28 @@ const initializeWebSocketHandler = () => {
 }
 
 const shrinkDeletedCells = () => {
-  let result = false
   state.matches.forEach((match) => {
     match.cells.forEach((matchCell) => {
       state.sprites.forEach((sprite) => {
         if (sprite.id == matchCell.id && sprite.scale.x > 0) {
           sprite.scale.x = 0
           sprite.scale.y = 0
-          if (sprite.scale.x <= 0 && sprite.scale.y <= 0) {
-            result = true
+          if (state.newCells.length > 0) {
+            state.explosionsArray = [...state.newCells]
           }
         }
       })
     })
   })
-  if (result) {
-    console.log('shrinked')
-    setTimeout(() => {
-      state.deleted = true
-      state.isMoving = false
-      state.matches = []
-    }, 490)
-  }
+  state.isMoving = false
+  setTimeout(() => {
+    state.deleted = true
+    state.matches = []
+  }, 500)
 }
 
 function animationStateMachine(speed: number) {
   speed = speed * 0.99
-  console.log('animation start')
   if (state.selected.position.x < state.nextSelectedBuffer.position.x) {
     state.selected.position.x += speed
   } else {
@@ -224,8 +226,8 @@ function animationStateMachine(speed: number) {
     state.nextSelected.position.y -= speed
   }
   if (
-    Math.abs(state.selected.position.x - state.nextSelectedBuffer.position.x) >= 20 &&
-    Math.abs(state.selected.position.y - state.nextSelectedBuffer.position.y) >= 20
+    Math.abs(state.selected.position.x - state.nextSelectedBuffer.position.x) >= 5 &&
+    Math.abs(state.selected.position.y - state.nextSelectedBuffer.position.y) >= 5
   ) {
     state.animationSpeed -= speed
   }
@@ -236,8 +238,9 @@ function animationStateMachine(speed: number) {
   ) {
     state.selected = null
     state.nextSelected = null
-    state.isMoveSuccessfull = false
-    state.animationSpeed = 5
+    state.animationSpeed = 3
+
+    if (state.matches) shrinkDeletedCells()
   }
 }
 
@@ -250,18 +253,14 @@ onBeforeMount(() => {
   initializeWebSocketHandler()
 })
 
-onTick((delta) => {
-  if (state.matches.length > 0 && state.isMoveSuccessfull == false) {
-    shrinkDeletedCells()
-  }
-
+onTick((deltaTime) => {
   if (state.deleted == true) {
     hydrateGrid()
     state.deleted = false
   }
 
-  if (state.isMoveSuccessfull == true) {
-    animationStateMachine(state.animationSpeed * delta)
+  if (state.isMoving == true && state.selected && state.nextSelected) {
+    animationStateMachine(state.animationSpeed * deltaTime)
   }
 
   if (state.selected) {
@@ -275,15 +274,15 @@ onTick((delta) => {
   <Loader :resources="['/assets/animation_data/explosion_data_file.json']">
     <Container>
       <animated-sprite
-        v-for="match in state.newCells"
-        :key="match.id"
+        v-for="explostion in state.explosionsArray"
+        :key="explostion.id"
         :textures="state.animationTextures"
-        :playing="!state.isMoveSuccessfull"
+        :playing="true"
         :loop="false"
         :animation-speed="0.45"
         :anchor="0.5"
-        :x="mapGridPositionToLocalCanvas(match.position.row, SPRITE_WIDTH) + 10"
-        :y="mapGridPositionToLocalCanvas(match.position.col, SPRITE_HEIGHT)"
+        :x="mapGridPositionToLocalCanvas(explostion.position.row, SPRITE_WIDTH) + 10"
+        :y="mapGridPositionToLocalCanvas(explostion.position.col, SPRITE_HEIGHT)"
         :scale="0.3"
         :z-index="1"
       />

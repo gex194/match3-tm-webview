@@ -4,7 +4,7 @@ import { RouterView } from 'vue-router'
 
 <template>
   <RouterView v-slot="{ Component }">
-    <Transition name="slide">
+    <Transition name="fade">
       <Component :is="Component" />
     </Transition>
   </RouterView>

@@ -10,6 +10,7 @@
     "test:unit": "vitest",
     "build-only": "vite build",
     "dev-build-only": "vite build --mode development",
+    "mobile-build-only": "vite build --mode mobile",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/"

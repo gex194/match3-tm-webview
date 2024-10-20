@@ -7,9 +7,11 @@ import { useRouter } from 'vue-router'
 const socketStore = useSocketStore()
 const router = useRouter()
 
-const onOpenSocketHandler = () => {
+const onOpenSocketHandler = (): void => {
   socketStore.socket?.addEventListener('open', () => {
-    router.push('/game')
+    setTimeout(() => {
+      router.push('/game')
+    }, 700)
   })
 }
 

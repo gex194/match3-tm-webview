@@ -5,24 +5,27 @@ import StyledButton from '@/components/StyledButton.vue'
 import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
 
-const show = ref(false)
-const inputValue = ref('test value')
-const errorText = ref('')
-const error = ref(false)
+const show = ref<boolean>(false)
+const inputValue = ref<string>('wallet address')
+const errorText = ref<string>('')
+const error = ref<boolean>(false)
 const router = useRouter()
 const gameInfo = useGameInfoStore()
 const socketStore = useSocketStore()
 
-const handleSubmit = () => {
+const handleSubmit = (): void => {
   socketStore.updateWalletRequest(inputValue.value)
 }
 
-const handleClose = () => {
+const handleClose = (): void => {
   socketStore.closeWebSocketConnection()
-  router.push('/')
+  show.value = false
+  setTimeout(() => {
+    router.push('/')
+  }, 700)
 }
 
-const socketErrorHandler = () => {
+const socketErrorHandler = (): void => {
   socketStore.socket?.addEventListener('message', (event) => {
     try {
       const response = JSON.parse(event.data)
@@ -43,7 +46,7 @@ const socketErrorHandler = () => {
   })
 }
 
-const handleInput = (e) => {
+const handleInput = (e): void => {
   inputValue.value = e.target.value
   error.value = false
   errorText.value = ''
@@ -141,8 +144,8 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   gap: 20px;
-  background: rgba(255, 255, 255, 1);
-  background: radial-gradient(at center, rgba(255, 255, 255, 0.7), rgba(1, 255, 192, 0));
+  /* background: rgba(255, 255, 255, 1);
+  background: radial-gradient(at center, rgba(255, 255, 255, 0.7), rgba(1, 255, 192, 0)); */
 }
 
 .waifu-container {
@@ -158,12 +161,12 @@ onMounted(() => {
   align-items: center;
 }
 .waifu-img {
-  width: 55%;
+  width: 38%;
   object-fit: cover;
 }
 .logo {
   position: absolute;
-  width: 400px;
+  width: 300px;
   bottom: 80%;
   object-fit: cover;
 }
@@ -176,6 +179,7 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 0px -59px 67.4px 0px rgba(255, 255, 255, 0.5) inset;
   padding: 15px 15px 15px 15px;
+  max-width: 380px;
 }
 
 .score-title,

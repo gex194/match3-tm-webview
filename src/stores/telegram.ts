@@ -13,7 +13,7 @@ export const useTelegramStore = defineStore('telegram', () => {
   const setTgUser = (user: Object) => {
     console.log('user', user)
     tgUser.value = user
-    tgUserId.value = 101265316
+    tgUserId.value = user.id
   }
 
   return { tgInitData, tgUser, tgUserId, setInitData, setTgUser }

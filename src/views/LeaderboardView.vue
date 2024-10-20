@@ -2,38 +2,38 @@
 import StyledButton from '@/components/StyledButton.vue'
 import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
-import { onMounted, reactive } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const socketStore = useSocketStore()
 const gameInfo = useGameInfoStore()
+const show = ref<boolean>(false)
 
-const state = reactive({
-  show: false
-})
-
-const handleClose = () => {
+const handleClose = (): void => {
   socketStore.closeWebSocketConnection()
-  router.push('/')
+  show.value = false
+  setTimeout(() => {
+    router.push('/')
+  }, 700)
 }
 
-const shrinkWalletString = (str: string) => {
+const shrinkWalletString = (str: string): string => {
   return str.substring(0, 5) + '.....' + str.substring(str.length - 5, str.length)
 }
 
 onMounted(() => {
   socketStore.leaderboardRequest()
   setTimeout(() => {
-    state.show = true
+    show.value = true
   }, 700)
 })
 </script>
 
 <template>
-  <div>
+  <div class="container">
     <Transition name="fade">
-      <div class="container" v-show="state.show">
+      <div v-show="show" class="container">
         <div class="logo-container">
           <img class="logo" src="/assets/images/logo.png" />
         </div>
@@ -69,8 +69,8 @@ onMounted(() => {
   justify-content: center;
   align-content: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 1);
-  background: radial-gradient(at center, rgba(255, 255, 255, 0.8), rgba(1, 255, 192, 0));
+  /* background: rgba(255, 255, 255, 1);
+  background: radial-gradient(at center, rgba(255, 255, 255, 0.8), rgba(1, 255, 192, 0)); */
 }
 .logo-container {
   position: relative;
@@ -100,6 +100,12 @@ onMounted(() => {
   padding: 20px;
   margin-right: 20px;
   margin-left: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 .leaderboard-content {
   display: grid;

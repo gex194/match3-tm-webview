@@ -3,10 +3,12 @@
 #app {
   height: 100%;
   width: 100%;
-  min-height: 100vh;
-  max-width: 1280px;
+  min-height: var(--tg-viewport-height);
   margin: 0 auto;
+  touch-action: manipulation;
   font-weight: normal;
+  background: rgba(255, 255, 255, 1);
+  background: radial-gradient(at center, rgba(255, 255, 255, 0.7), rgba(1, 255, 192, 0));
 }
 
 a,
