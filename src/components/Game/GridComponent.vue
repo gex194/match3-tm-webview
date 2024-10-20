@@ -5,6 +5,30 @@ import { Rectangle } from 'pixi.js'
 import { reactive, onMounted, onBeforeMount, toRaw } from 'vue'
 import { Loader, onTick, type SpriteComponent } from 'vue3-pixi'
 
+class GridWithSprites {
+  state = reactive({
+    sprites: [] as any[],
+    selected: null as any | null,
+    selectedBuffer: null as any | null,
+    nextSelected: null as any | null,
+    nextSelectedBuffer: null as any | null,
+    gameState: null as GameState | null,
+    matches: [] as any[],
+    newCells: [] as any[],
+    deleted: false as Boolean,
+    isMoveSuccessfull: false as Boolean,
+    animationTextures: [] as any[],
+    isMoving: false as Boolean,
+    animationSpeed: 5 as number
+  })
+
+  initAnimationSpriteTextures = () => {
+    for (let x = 0; x < 17; x++) {
+      this.state.animationTextures.push(`frame_0${x}_delay-0.04s.png`)
+    }
+  }
+}
+
 const state = reactive({
   sprites: [] as any[],
   selected: null as any | null,
@@ -112,6 +136,7 @@ const handleClick = (event: any) => {
   }
   if (!state.selected) {
     saveElementToState(element, true)
+    return
   } else {
     if (element !== state.selected) {
       saveElementToState(element)
@@ -133,16 +158,17 @@ const onGameStart = (response) => {
 }
 
 const onGameMove = (response) => {
+  const makeMoveResponse = response.data as MakeMoveResponse
   state.isMoving = true
   const randomIndex = Math.floor(Math.random() * 6)
   const moveSound = new Audio(sounds[randomIndex])
 
-  moveSound.volume = 0.4
+  moveSound.volume = import.meta.env.VITE_GAME_EFFECT_SOUND_LEVEL
 
   state.gameState = response.data as GameState
   state.matches = response.data.matches
   state.newCells = response.data.new_cells
-  state.isMoveSuccessfull = true
+  state.isMoveSuccessfull = makeMoveResponse.success
 
   gameInfo.setScore(state.gameState.score)
   moveSound.play()
@@ -201,7 +227,7 @@ const shrinkDeletedCells = () => {
 
 function animationStateMachine(speed: number) {
   speed = speed * 0.99
-  console.log('animation start')
+  // console.log('animation start')
   if (state.selected.position.x < state.nextSelectedBuffer.position.x) {
     state.selected.position.x += speed
   } else {
@@ -251,6 +277,17 @@ onBeforeMount(() => {
 })
 
 onTick((delta) => {
+
+  // switch (state.gameState?.status) {
+  //   case 'game_over':
+  //     console.log('GAME OVER')
+  //     break
+  //   case 'game_won':
+  //     console.log('GAME WON')
+  //     break
+  //   default:
+  //     break
+  // }
   if (state.matches.length > 0 && state.isMoveSuccessfull == false) {
     shrinkDeletedCells()
   }
@@ -270,6 +307,7 @@ onTick((delta) => {
     state.selected.scale.y = scale
   }
 })
+
 </script>
 <template>
   <Loader :resources="['/assets/animation_data/explosion_data_file.json']">

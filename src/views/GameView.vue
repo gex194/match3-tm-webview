@@ -2,21 +2,26 @@
 import TopPanel from '@/components/TopPanel.vue'
 import Renderer from '@/components/Game/RendererComponent.vue'
 import Grid from '@/components/Game/GridComponent.vue'
-import { onUnmounted, reactive } from 'vue'
+import GridGPT from '@/components/Game/GirdComponent_GPT.vue'
+import {onMounted, onUnmounted, reactive} from 'vue'
 import StyledButton from '@/components/StyledButton.vue'
-import { onBeforeRouteLeave } from 'vue-router'
+import {onBeforeRouteLeave} from 'vue-router'
 
 const bgMusic = new Audio('/assets/sounds/background_music.mp3')
 const state = reactive({
   isPlayButtonPressed: false,
   isPlayButtonViewActive: true,
-  routeLeave: false
+  routeLeave: false,
+  show: false
 })
 
+// const store =  useSocketStore()
+
 const handlePlayButton = () => {
+  // import.meta.env.VITE_BASE_WS_URL
   state.isPlayButtonPressed = true
   state.isPlayButtonViewActive = false
-  bgMusic.volume = 0.3
+  bgMusic.volume = import.meta.env.VITE_GAME_MUSIC_SOUND_LEVEL
   bgMusic.play()
   bgMusic.loop = true
 }
@@ -25,26 +30,39 @@ onBeforeRouteLeave(() => {
   state.routeLeave = true
 })
 
+onMounted(() => {
+  setTimeout(() => {
+    state.show = true
+  }, 300)
+})
+
 onUnmounted(() => {
   bgMusic.pause()
 })
 </script>
 
 <template>
-  <main :class="state.isPlayButtonViewActive ? 'game-screen-button' : 'game-screen'">
-    <div class="button-container" v-if="!state.isPlayButtonPressed">
-      <StyledButton @click="handlePlayButton">Play</StyledButton>
-    </div>
-    <div class="game-screen-container" v-else>
-      <TopPanel />
-      <Renderer :class="state.routeLeave ? 'renderer-hide' : 'renderer-show'">
-        <Grid />
-      </Renderer>
-      <div>
-        <img src="/assets/images/duck.gif" width="150" height="150" />
-      </div>
-    </div>
-  </main>
+  <div>
+    <main :class="state.isPlayButtonViewActive ? 'game-screen-button' : 'game-screen'">
+      <Transition name="fade">
+        <div v-show="state.show">
+          <div class="button-container" v-if="!state.isPlayButtonPressed">
+            <StyledButton @click="handlePlayButton">Play</StyledButton>
+          </div>
+          <div class="game-screen-container" v-else>
+            <TopPanel/>
+            <Renderer :class="state.routeLeave ? 'renderer-hide' : 'renderer-show'">
+              <Grid/>
+<!--              <GridGPT/>-->
+            </Renderer>
+            <div>
+              <img src="/assets/images/duck.gif" width="150" height="150"/>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </main>
+  </div>
 </template>
 
 <style scoped>
@@ -55,6 +73,7 @@ onUnmounted(() => {
 .renderer-show {
   opacity: 1;
 }
+
 .game-screen {
   width: 100%;
   height: 100%;

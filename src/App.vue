@@ -1,24 +1,51 @@
+
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 </script>
 
 <template>
   <RouterView v-slot="{ Component }">
-    <Transition name="slide">
+<!--    <Transition name="slide">-->
+    <Transition name="slide-fade">
       <Component :is="Component" />
     </Transition>
   </RouterView>
 </template>
 
 <style scoped>
+
+/*
+  Enter and leave animations can use different
+  durations and timing functions.
+*/
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+
 .slide-leave-active,
 .slide-enter-active {
-  transition: 0.3s;
+  transition: 3s;
+  transition-duration: 3s;
 }
 .slide-enter {
+  //opacity: 0.2;
+  //transition-duration: 3s;
   transform: translate(100%, 0);
 }
 .slide-leave-to {
+  //opacity: 1;
+  //transition-duration: 3s;
   transform: translate(-100%, 0);
 }
 header {
