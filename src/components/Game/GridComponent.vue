@@ -226,8 +226,8 @@ function animationStateMachine(speed: number) {
     state.nextSelected.position.y -= speed
   }
   if (
-    Math.abs(state.selected.position.x - state.nextSelectedBuffer.position.x) >= 5 &&
-    Math.abs(state.selected.position.y - state.nextSelectedBuffer.position.y) >= 5
+    Math.abs(state.selected.position.x - state.nextSelectedBuffer.position.x) >= 8 &&
+    Math.abs(state.selected.position.y - state.nextSelectedBuffer.position.y) >= 8
   ) {
     state.animationSpeed -= speed
   }
