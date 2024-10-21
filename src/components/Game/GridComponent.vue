@@ -22,7 +22,7 @@ const state = reactive({
   isMoveSuccessfull: false as Boolean,
   animationTextures: [] as any[],
   isMoving: false as Boolean,
-  animationSpeed: 3 as number,
+  animationSpeed: 4 as number,
   deleteDelay: 1000 as number
 })
 
@@ -200,44 +200,28 @@ const shrinkDeletedCells = () => {
   }, 500)
 }
 
-function animationStateMachine(speed: number) {
-  speed = speed * 0.99
-  if (state.selected.position.x < state.nextSelectedBuffer.position.x) {
-    state.selected.position.x += speed
-  } else {
-    state.selected.position.x -= speed
-  }
-  if (state.nextSelected.position.x < state.selectedBuffer.position.x) {
-    state.nextSelected.position.x += speed
-  } else {
-    state.nextSelected.position.x -= speed
-  }
-  //Bottom to Up
-  if (state.selected.position.y < state.nextSelectedBuffer.position.y) {
-    state.selected.position.y += speed
-  } else {
-    state.selected.position.y -= speed
-  }
-  if (state.nextSelected.position.y < state.selectedBuffer.position.y) {
-    state.nextSelected.position.y += speed
-  } else {
-    state.nextSelected.position.y -= speed
-  }
-  if (
-    Math.abs(state.selected.position.x - state.nextSelectedBuffer.position.x) >= 8 &&
-    Math.abs(state.selected.position.y - state.nextSelectedBuffer.position.y) >= 8
-  ) {
-    state.animationSpeed -= speed
-  }
+function animationStateMachine(deltaTime: number) {
+  const dx = state.nextSelectedBuffer.position.x - state.selected.position.x
+  const dy = state.nextSelectedBuffer.position.y - state.selected.position.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
 
-  if (
-    Math.abs(state.selected.position.x - state.nextSelectedBuffer.position.x) <= 2 &&
-    Math.abs(state.selected.position.y - state.nextSelectedBuffer.position.y) <= 2
-  ) {
+  if (distance > state.animationSpeed) {
+    const normalizedX = dx / distance
+    const normalizedY = dy / distance
+    state.selected.position.x += normalizedX * state.animationSpeed * deltaTime
+    state.selected.position.y += normalizedY * state.animationSpeed * deltaTime
+
+    state.nextSelected.position.x += -normalizedX * state.animationSpeed * deltaTime
+    state.nextSelected.position.y += -normalizedY * state.animationSpeed * deltaTime
+  } else {
+    state.selected.position.x = state.nextSelectedBuffer.position.x
+    state.selected.position.y = state.nextSelectedBuffer.position.y
+
+    state.nextSelected.position.x = state.selectedBuffer.position.x
+    state.nextSelected.position.y = state.selectedBuffer.position.y
+
     state.selected = null
     state.nextSelected = null
-    state.animationSpeed = 3
-
     if (state.matches) shrinkDeletedCells()
   }
 }
@@ -258,7 +242,7 @@ onTick((deltaTime) => {
   }
 
   if (state.isMoving == true && state.selected && state.nextSelected) {
-    animationStateMachine(state.animationSpeed * deltaTime)
+    animationStateMachine(deltaTime)
   }
 
   if (state.selected) {
