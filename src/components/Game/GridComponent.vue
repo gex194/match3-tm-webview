@@ -143,7 +143,7 @@ const onGameMove = (response) => {
   const randomIndex = Math.floor(Math.random() * 6)
   const moveSound = new Audio(sounds[randomIndex])
 
-  moveSound.volume = 0.4
+  moveSound.volume = import.meta.env.VITE_EFFECT_SOUND_VOLUME
 
   state.gameState = response.data as GameState
   state.matches = response.data.matches

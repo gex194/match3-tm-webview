@@ -16,7 +16,7 @@ const show = ref<boolean>(false)
 const handlePlayButton = (): void => {
   isPlayButtonPressed.value = true
   isPlayButtonViewActive.value = false
-  bgMusic.volume = 0.3
+  bgMusic.volume = import.meta.env.VITE_BACKGROUND_MUSIC_VOLUME
   bgMusic.play()
   bgMusic.loop = true
 }
