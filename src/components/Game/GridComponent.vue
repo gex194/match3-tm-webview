@@ -188,14 +188,12 @@ const shrinkDeletedCells = () => {
         if (sprite.id == matchCell.id && sprite.scale.x > 0) {
           sprite.scale.x = 0
           sprite.scale.y = 0
-          if (state.newCells.length > 0) {
-            state.explosionsArray = [...state.newCells]
-          }
         }
       })
     })
   })
   state.isMoving = false
+  state.explosionsArray = [...state.newCells]
   setTimeout(() => {
     state.deleted = true
     state.matches = []
