@@ -192,9 +192,10 @@ const shrinkDeletedCells = () => {
       })
     })
   })
-  state.isMoving = false
+
   state.explosionsArray = [...state.newCells]
   setTimeout(() => {
+    state.isMoving = false
     state.deleted = true
     state.matches = []
   }, 500)
