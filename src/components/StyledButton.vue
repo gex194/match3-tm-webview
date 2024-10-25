@@ -8,6 +8,7 @@
 
 <style scoped>
 .button-main {
+  transition: background-color 1s;
   border-radius: 60px;
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 0px -59px 67.4px 0px rgba(255, 255, 255, 0.5) inset;
@@ -16,6 +17,7 @@
 }
 .button-main:hover {
   cursor: pointer;
+  background: rgba(255, 255, 255, 1);
 }
 .button-title {
   font-size: 40px;

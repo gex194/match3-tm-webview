@@ -2,9 +2,12 @@
 import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
 import { Rectangle } from 'pixi.js'
-import { reactive, onMounted, onBeforeMount, toRaw } from 'vue'
+import { reactive, onMounted, onBeforeMount, toRaw, watch } from 'vue'
 import { Loader, onTick, type SpriteComponent } from 'vue3-pixi'
 
+const props = defineProps({
+  width: Number
+})
 const socketStore = useSocketStore()
 const gameInfo = useGameInfoStore()
 
@@ -22,24 +25,36 @@ const state = reactive({
   isMoveSuccessfull: false as Boolean,
   animationTextures: [] as any[],
   isMoving: false as Boolean,
-  animationSpeed: 4 as number,
+  animationSpeed: 10 as number,
   deleteDelay: 1000 as number
 })
 
-const innerWidth = window.innerWidth - 20
-const SPRITE_WIDTH = Math.floor(innerWidth / 8) //50
-const SPRITE_HEIGHT = 54 //54
-const SCALE_X = 0.45
-const SCALE_Y = 0.45
+const configState = reactive({
+  SPRITE_WIDTH: 50, //50
+  SPRITE_HEIGHT: 54, //54
+  SCALE_X: 0.45,
+  SCALE_Y:0.45,
+  sounds: [
+    '/assets/sounds/move1.mp3',
+    '/assets/sounds/move2.mp3',
+    '/assets/sounds/move3.mp3',
+    '/assets/sounds/move4.mp3',
+    '/assets/sounds/move5.mp3',
+    '/assets/sounds/move6.mp3'
+  ]
+})
 
-const sounds = [
-  '/assets/sounds/move1.mp3',
-  '/assets/sounds/move2.mp3',
-  '/assets/sounds/move3.mp3',
-  '/assets/sounds/move4.mp3',
-  '/assets/sounds/move5.mp3',
-  '/assets/sounds/move6.mp3'
-]
+watch(() => props.width, () => {
+  console.log(props.width)
+  configState.SPRITE_WIDTH = Math.floor(props.width / 8) //50props.width
+  configState.SPRITE_HEIGHT = Math.floor(560 / 8) //50props.width
+  configState.SCALE_X = (props.width / 560) / 2.4;
+  configState.SCALE_Y = (props.width / 560) / 2.4;
+  if (state.gameState) {
+    hydrateGrid()
+  }
+
+})
 
 const initAnimationSpriteTextures = () => {
   for (let x = 0; x < 10; x++) {
@@ -67,18 +82,18 @@ const hydrateGrid = () => {
         anchor: { x: 0.5, y: 0.5 },
         isNew: grid[x][y].is_new,
         position: {
-          x: mapGridPositionToLocalCanvas(grid[x][y].position.row, SPRITE_WIDTH),
-          y: mapGridPositionToLocalCanvas(grid[x][y].position.col, SPRITE_HEIGHT)
+          x: mapGridPositionToLocalCanvas(grid[x][y].position.row, configState.SPRITE_WIDTH),
+          y: mapGridPositionToLocalCanvas(grid[x][y].position.col, configState.SPRITE_HEIGHT)
         },
         hitArea: new Rectangle(
-          mapGridPositionToLocalCanvas(grid[x][y].position.row, SPRITE_WIDTH),
-          mapGridPositionToLocalCanvas(grid[x][y].position.col, SPRITE_HEIGHT),
-          SPRITE_WIDTH,
-          SPRITE_HEIGHT
+          mapGridPositionToLocalCanvas(grid[x][y].position.row, configState.SPRITE_WIDTH),
+          mapGridPositionToLocalCanvas(grid[x][y].position.col, configState.SPRITE_HEIGHT),
+          configState.SPRITE_WIDTH,
+          configState.SPRITE_HEIGHT
         ),
         positionGrid: grid[x][y].position,
         texture: `/assets/images/hearts/${grid[x][y].type}.png`,
-        scale: { x: SCALE_X, y: SCALE_Y }
+        scale: { x: configState.SCALE_X, y: configState.SCALE_Y }
       }
       state.sprites.push(spriteData)
     }
@@ -106,10 +121,11 @@ function saveElementToState(element: SpriteComponent, current = false) {
 }
 
 const resetStateValueScale = () => {
-  state.selected.scale = { x: SCALE_X, y: SCALE_Y }
+  state.selected.scale = { x: configState.SCALE_X, y: configState.SCALE_Y }
 }
 
 const handleClick = (event: any) => {
+  console.log("HANDLE CLICK", event)
   let from
   let to
   const element = event.currentTarget
@@ -141,7 +157,7 @@ const onGameStart = (response) => {
 const onGameMove = (response) => {
   state.isMoving = true
   const randomIndex = Math.floor(Math.random() * 6)
-  const moveSound = new Audio(sounds[randomIndex])
+  const moveSound = new Audio(configState.sounds[randomIndex])
 
   moveSound.volume = import.meta.env.VITE_EFFECT_SOUND_VOLUME
 
@@ -247,7 +263,7 @@ onTick((deltaTime) => {
   }
 
   if (state.selected) {
-    const scale = 0.5 + 0.1 * Math.sin(Date.now() / 100)
+    const scale = configState.SCALE_X + 0.1 * Math.sin(Date.now() / 100)
     state.selected.scale.x = scale
     state.selected.scale.y = scale
   }
@@ -264,9 +280,9 @@ onTick((deltaTime) => {
         :loop="false"
         :animation-speed="0.45"
         :anchor="0.5"
-        :x="mapGridPositionToLocalCanvas(explostion.position.row, SPRITE_WIDTH) + 10"
-        :y="mapGridPositionToLocalCanvas(explostion.position.col, SPRITE_HEIGHT)"
-        :scale="0.3"
+        :x="mapGridPositionToLocalCanvas(explostion.position.row, configState.SPRITE_WIDTH) + 10"
+        :y="mapGridPositionToLocalCanvas(explostion.position.col, configState.SPRITE_HEIGHT)"
+        :scale="0.6"
         :z-index="1"
       />
       <sprite

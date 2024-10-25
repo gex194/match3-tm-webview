@@ -1,16 +1,31 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { onMounted, ref, useTemplateRef, watchEffect } from 'vue'
 import { Application } from 'vue3-pixi'
 
-const container = useTemplateRef<string>('container')
+const container = useTemplateRef('game-container');
 const innerWidth: number = window.innerWidth - 20
+const containerWidth = ref(0);
+
+const handleContainerSize = (el: any) => {
+  console.log('container', el)
+  if (el.value) {
+    const positionInfo = el?.value.getBoundingClientRect();
+    containerWidth.value = positionInfo.width;
+
+  }
+}
+
+onMounted(() => {
+  handleContainerSize(container)
+  addEventListener('resize',(event) => handleContainerSize(container))
+})
 </script>
 
 <template>
-  <div class="main-container container" ref="container">
-    <Application :background-alpha="0" :width="innerWidth" :height="430" :resize-to="container">
+  <div class="main-container container" ref="game-container">
+    <Application :background-alpha="0" :width="containerWidth" :height="560" auto-resize="true" :resize-to="container">
       <container>
-        <slot></slot>
+        <slot name="grid" :width="containerWidth"></slot>
       </container>
     </Application>
   </div>
@@ -19,6 +34,6 @@ const innerWidth: number = window.innerWidth - 20
 <style scoped>
 .container {
   width: 96%;
-  min-height: 460;
+  min-height: 560px;
 }
 </style>

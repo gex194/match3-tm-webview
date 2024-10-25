@@ -46,7 +46,7 @@ watch(
 
 <style scoped>
 .container {
-  width: 100%;
+  width: 96%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

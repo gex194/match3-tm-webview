@@ -11,7 +11,7 @@ export const useSocketStore = defineStore('socket', () => {
   const socket = ref<WebSocket | null>(null)
   const session_id = ref<string | null>('')
   const wallet = ref<string>('')
-  const baseWsUrl = import.meta.env.VITE_BASE_WS_URL
+  const baseWsUrl = tgStore.tgInitData ? import.meta.env.VITE_BASE_WS_URL : import.meta.env.VITE_BASE_WS_BROWSER_URL
 
   const openWebSocketConnection = () => {
     socket.value = new WebSocket(baseWsUrl + tgStore.tgInitData)
@@ -67,7 +67,7 @@ export const useSocketStore = defineStore('socket', () => {
     sendWebSocketRequest(request)
   }
 
-  const moveRequest = (from, to) => {
+  const moveRequest = (from : PositionGrid, to: PositionGrid) => {
     const request = {
       path: '/game/move',
       request_id: generateRequestID(),

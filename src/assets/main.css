@@ -3,12 +3,15 @@
 #app {
   height: 100%;
   width: 100%;
-  min-height: var(--tg-viewport-height);
+  min-height: 100vh;
+  max-width: 960px;
   margin: 0 auto;
   touch-action: manipulation;
   font-weight: normal;
   background: rgba(255, 255, 255, 1);
-  background: radial-gradient(at center, rgba(255, 255, 255, 0.7), rgba(1, 255, 192, 0));
+  background: radial-gradient(at center, rgba(255, 255, 255, 1), rgba(250, 106, 160, 1));
+  border-right: 4px solid white;
+  border-left: 4px solid white;
 }
 
 a,
@@ -49,6 +52,7 @@ ul {
 }
 
 .roksana-text {
+  color: white;
   font-family: 'Roksana';
   -webkit-text-stroke-width: 0.7px;
   -webkit-text-stroke-color: black;

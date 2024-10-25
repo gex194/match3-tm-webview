@@ -48,7 +48,9 @@ onUnmounted(() => {
             <div class="game-screen-container" v-else>
               <TopPanel />
               <Renderer :class="routeLeave ? 'renderer-hide' : 'renderer-show'">
-                <Grid />
+                <template #grid="{width}">
+                  <Grid :width="width"  />
+                </template>
               </Renderer>
               <div>
                 <img src="/assets/images/duck.gif" width="150" height="150" />
