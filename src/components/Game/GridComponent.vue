@@ -4,12 +4,14 @@ import { useSocketStore } from '@/stores/socket'
 import { Rectangle } from 'pixi.js'
 import { reactive, onMounted, onBeforeMount, toRaw, watch } from 'vue'
 import { Loader, onTick, type SpriteComponent } from 'vue3-pixi'
+import { useChatStore } from '@/stores/chat'
 
 const props = defineProps({
   width: Number
 })
 const socketStore = useSocketStore()
 const gameInfo = useGameInfoStore()
+const chatStore = useChatStore();
 
 const state = reactive({
   sprites: [] as any[],
@@ -44,17 +46,23 @@ const configState = reactive({
   ]
 })
 
-watch(() => props.width, () => {
-  console.log(props.width)
-  configState.SPRITE_WIDTH = Math.floor(props.width / 8) //50props.width
-  configState.SPRITE_HEIGHT = Math.floor(560 / 8) //50props.width
-  configState.SCALE_X = (props.width / 560) / 2.4;
-  configState.SCALE_Y = (props.width / 560) / 2.4;
-  if (state.gameState) {
-    hydrateGrid()
-  }
+watch(() => props.width, (value) => {
+  initSpriteSize(value);
+}, {immediate: true})
 
-})
+function initSpriteSize(width: number | undefined) {
+  console.log('width', width)
+  if (width) {
+    console.log('width', width)
+    configState.SPRITE_WIDTH = Math.floor(width / 8) //50props.width
+    configState.SPRITE_HEIGHT = Math.floor(690 / 8) //50props.width
+    configState.SCALE_X = (width / 690) / 1.5;
+    configState.SCALE_Y = (width / 690) / 1.5;
+    if (state.gameState) {
+      hydrateGrid()
+    }
+  }
+}
 
 const initAnimationSpriteTextures = () => {
   for (let x = 0; x < 10; x++) {
@@ -168,6 +176,7 @@ const onGameMove = (response) => {
 
   gameInfo.setScore(state.gameState.score)
   moveSound.play()
+  chatStore.checkScore()
 }
 
 const initializeWebSocketHandler = () => {

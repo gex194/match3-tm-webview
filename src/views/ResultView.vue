@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import StyledButton from '@/components/StyledButton.vue'
 import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
+import WaifuComponent from '@/components/WaifuComponent.vue'
 
 const show = ref<boolean>(false)
 const inputValue = ref<string>('wallet address')
@@ -71,31 +72,36 @@ onMounted(() => {
         <div class="logo-container">
           <img class="logo" src="/assets/images/logo.png" />
         </div>
-        <div name="result-block" class="result-block">
-          <div class="time-result">
-            <span class="roksana-text time-title">Time</span>
-            <span class="gameria-text time-value">{{ gameInfo.time }}</span>
+        <div class="result-content">
+          <div class="result-content--waifu"><WaifuComponent /></div>
+          <div class="result-content--form">
+            <div name="result-block" class="result-block">
+              <div class="time-result">
+                <span class="roksana-text time-title">Time</span>
+                <span class="gameria-text time-value">{{ gameInfo.time }}</span>
+              </div>
+              <div class="score-result">
+                <span class="roksana-text score-title">Score</span>
+                <span class="gameria-text score-value">{{ gameInfo.score }}</span>
+              </div>
+            </div>
+            <div name="result-personal" class="input-container">
+              <span></span>
+              <label for="wallet" class="error">&nbsp;{{ errorText }}</label>
+              <input
+                id="wallet"
+                class="result-personal-input"
+                :class="errorText ? 'input-error' : ''"
+                type="text"
+                :value="inputValue"
+                @input="handleInput"
+              />
+            </div>
+            <div class="buttons-container">
+              <StyledButton @click="handleSubmit">Submit</StyledButton>
+              <StyledButton @click="handleClose">Retry</StyledButton>
+            </div>
           </div>
-          <div class="score-result">
-            <span class="roksana-text score-title">Score</span>
-            <span class="gameria-text score-value">{{ gameInfo.score }}</span>
-          </div>
-        </div>
-        <div name="result-personal" class="input-container">
-          <span></span>
-          <label for="wallet" class="error">&nbsp;{{ errorText }}</label>
-          <input
-            id="wallet"
-            class="result-personal-input"
-            :class="errorText ? 'input-error' : ''"
-            type="text"
-            :value="inputValue"
-            @input="handleInput"
-          />
-        </div>
-        <div class="buttons-container">
-          <StyledButton @click="handleSubmit">Submit</StyledButton>
-          <StyledButton @click="handleClose">Retry</StyledButton>
         </div>
       </div>
     </Transition>
@@ -103,6 +109,27 @@ onMounted(() => {
 </template>
 
 <style>
+.result-content--waifu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34%;
+}
+
+.result-content--form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.result-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
 .buttons-container {
   display: flex;
   flex-direction: column;
@@ -145,6 +172,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   gap: 20px;
+  min-height: 100vh;
   /* background: rgba(255, 255, 255, 1);
   background: radial-gradient(at center, rgba(255, 255, 255, 0.7), rgba(1, 255, 192, 0)); */
 }
@@ -162,12 +190,12 @@ onMounted(() => {
   align-items: center;
 }
 .waifu-img {
-  width: 38%;
+  width: 20%;
   object-fit: cover;
 }
 .logo {
   position: absolute;
-  width: 300px;
+  width: 200px;
   bottom: 80%;
   object-fit: cover;
 }
