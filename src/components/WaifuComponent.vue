@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { onBeforeMount, ref, watch } from 'vue'
 import { useGameInfoStore } from '@/stores/gameInfo'
 import ChatComponent from '@/components/ChatComponent.vue'
@@ -12,6 +11,9 @@ const imageSources = [
   '/assets/images/waifu_score/transparent/1.png',
 ]
 const gameInfo = useGameInfoStore();
+const props = defineProps({
+  chat: Boolean
+})
 
 const imageSrc = ref<string>('')
 const scoreImageMap = ref<Array<WaifuImage>>([])
@@ -47,16 +49,23 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div class="waifu-container">
+  <div :class="props.chat ? 'waifu-container' : 'waifu-container--no-chat'">
     <Transition name="fade" mode="out-in">
       <img class="waifu-img" :key="imageSrc" :src="imageSrc" alt="waifu"/>
     </Transition>
-    <ChatComponent />
+    <div style="height: 240px" v-if="props.chat">
+      <ChatComponent v-if="props.chat" />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .waifu-container {
+  width: 30%;
+  flex-direction: column;
+}
+.waifu-container--no-chat {
+  width: 100%;
   flex-direction: column;
 }
 .waifu-img {

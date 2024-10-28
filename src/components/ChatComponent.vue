@@ -11,6 +11,7 @@ const handleInput = (event: any) => {
 
 const handleSend = () => {
   chatStore.processDolphinRequest(inputValue.value)
+  inputValue.value = ''
 }
 </script>
 
@@ -20,7 +21,7 @@ const handleSend = () => {
       <span class="messages-text">{{chatStore.response}}</span>/
     </div>
     <div class="chat-interaction-container">
-      <input class="chat-input" @input="handleInput" />
+      <input class="chat-input" @input="handleInput" :value="inputValue" @keyup.enter="handleSend" />
       <button class="chat-button" @click="handleSend">Send</button>
     </div>
 
@@ -36,6 +37,7 @@ const handleSend = () => {
   min-width: 200px;
   background-color: #ffbfda;
   border-radius: 20px;
+  height: 100%;
 }
 
 .messages-container {
@@ -45,7 +47,7 @@ const handleSend = () => {
   color: white;
   background-color: #ff93c2;
   overflow-y: auto;
-  height: 140px;
+  height: 100%;
 }
 
 .messages-text {

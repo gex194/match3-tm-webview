@@ -5,6 +5,8 @@ import StyledButton from '@/components/StyledButton.vue'
 import { useGameInfoStore } from '@/stores/gameInfo'
 import { useSocketStore } from '@/stores/socket'
 import WaifuComponent from '@/components/WaifuComponent.vue'
+import ChatComponent from '@/components/ChatComponent.vue'
+import { useChatStore } from '@/stores/chat'
 
 const show = ref<boolean>(false)
 const inputValue = ref<string>('wallet address')
@@ -13,6 +15,7 @@ const error = ref<boolean>(false)
 const router = useRouter()
 const gameInfo = useGameInfoStore()
 const socketStore = useSocketStore()
+const chatStore = useChatStore();
 
 const handleSubmit = (): void => {
   socketStore.updateWalletRequest(inputValue.value)
@@ -57,6 +60,7 @@ onMounted(() => {
   inputValue.value = socketStore.wallet
   setTimeout(() => {
     show.value = true
+    chatStore.gameOver()
   }, 700)
   socketErrorHandler()
 })
@@ -65,7 +69,7 @@ onMounted(() => {
 <template>
   <div>
     <Transition name="fade">
-      <div class="container" v-show="show">
+      <div class="result-container" v-show="show">
         <div class="waifu-container">
           <img class="waifu-img" src="/assets/images/waifu-result-screen.png" />
         </div>
@@ -74,6 +78,7 @@ onMounted(() => {
         </div>
         <div class="result-content">
           <div class="result-content--waifu"><WaifuComponent /></div>
+          <div class="result-content--chat"><ChatComponent /></div>
           <div class="result-content--form">
             <div name="result-block" class="result-block">
               <div class="time-result">
@@ -108,12 +113,17 @@ onMounted(() => {
   </div>
 </template>
 
-<style>
+<style scoped>
 .result-content--waifu {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34%;
+}
+
+.result-content--chat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .result-content--form {
@@ -126,7 +136,8 @@ onMounted(() => {
   padding: 20px;
 }
 .result-content {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
   flex-direction: row;
   justify-content: center;
 }
@@ -166,7 +177,7 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
 }
-.container {
+.result-container {
   display: flex;
   flex-direction: column;
   justify-content: center;

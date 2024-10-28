@@ -47,9 +47,7 @@ onUnmounted(() => {
         <Transition name="fade">
           <div v-show="show" class="glass-container">
             <div class="button-container" v-if="!isPlayButtonPressed">
-              <div style="width: 30%">
-                <WaifuComponent />
-              </div>
+                <WaifuComponent :chat="true" />
               <StyledButton @click="handlePlayButton">Play</StyledButton>
             </div>
             <div class="game-screen-container" v-else>
@@ -60,9 +58,7 @@ onUnmounted(() => {
                     <Grid :width="width"  />
                   </template>
                 </Renderer>
-                <div style="width: 30%">
-                  <WaifuComponent />
-                </div>
+                <WaifuComponent :chat="true" />
               </div>
               <div>
                 <img src="/assets/images/duck.gif" width="150" height="150" />

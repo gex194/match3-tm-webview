@@ -25,6 +25,11 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  async function gameOver() {
+    await processDolphinRequest("Game is over. Tell me how good I am, but i can be better at the game if i try good enough");
+    resetTresholds()
+  }
+
   function resetTresholds() {
     chatThresholds.value = [
       {value: 1000, message: "I got 1000 points. Praise me and say some good and horny things to me!"},
@@ -92,5 +97,5 @@ export const useChatStore = defineStore('chat', () => {
   }
 
 
-  return { response, processDolphinRequest, checkScore, resetTresholds }
+  return { response, processDolphinRequest, checkScore, resetTresholds, gameOver }
 })
