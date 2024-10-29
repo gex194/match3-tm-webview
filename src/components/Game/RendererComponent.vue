@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { onMounted, onUpdated, ref, useTemplateRef, watch, watchEffect } from 'vue'
+import { onMounted, onUpdated, ref, useTemplateRef } from 'vue'
 import { Application } from 'vue3-pixi'
 
 const container = useTemplateRef('game-container');
-const innerWidth: number = window.innerWidth - 20
 const containerWidth = ref(0);
 
 const handleContainerSize = (el: any) => {
   if (el.value) {
     const positionInfo = el?.value.getBoundingClientRect();
     containerWidth.value = positionInfo.width;
-    console.log('container width', containerWidth.value);
   }
 }
 

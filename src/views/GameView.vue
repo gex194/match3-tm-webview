@@ -8,6 +8,7 @@ import { onBeforeRouteLeave } from 'vue-router'
 import WaifuComponent from '@/components/WaifuComponent.vue'
 import ChatComponent from '@/components/ChatComponent.vue'
 import { useChatStore } from '@/stores/chat'
+import ProgressBar from '@/components/ProgressBar.vue'
 
 const bgMusic = new Audio('/assets/sounds/background_music.mp3')
 const chatStore = useChatStore();
@@ -48,7 +49,7 @@ onUnmounted(() => {
           <div v-show="show" class="glass-container">
             <div class="button-container" v-if="!isPlayButtonPressed">
                 <WaifuComponent :chat="true" />
-              <StyledButton @click="handlePlayButton">Play</StyledButton>
+              <StyledButton @click="handlePlayButton" :disabled="!chatStore.response">Play</StyledButton>
             </div>
             <div class="game-screen-container" v-else>
               <TopPanel />
@@ -60,9 +61,7 @@ onUnmounted(() => {
                 </Renderer>
                 <WaifuComponent :chat="true" />
               </div>
-              <div>
-                <img src="/assets/images/duck.gif" width="150" height="150" />
-              </div>
+              <ProgressBar />
             </div>
           </div>
         </Transition>
@@ -95,7 +94,7 @@ onUnmounted(() => {
   width: 100%;
   padding:20px;
   height: 100%;
-  min-height: var(--tg-viewport-height);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   flex-grow: 1;

@@ -19,6 +19,14 @@
   cursor: pointer;
   background: rgba(255, 255, 255, 1);
 }
+.button-main:disabled {
+  color: grey;
+}
+
+.button-main:disabled:hover {
+  cursor: default;
+  background: rgba(255, 255, 255, 0.2);
+}
 .button-title {
   font-size: 40px;
 }

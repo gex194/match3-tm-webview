@@ -37,6 +37,9 @@ watch(
       <span class="roksana-text score-title">Score</span>
       <span class="gameria-text score-value">{{ gameInfo.score }}</span>
     </div>
+    <div>
+      <img src="/assets/images/duck.gif" width="100" height="100" />
+    </div>
     <div class="time">
       <span class="roksana-text time-title">Time</span>
       <span class="gameria-text time-value">{{ timer }}</span>
