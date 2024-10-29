@@ -1,3 +1,4 @@
+import type { PositionGrid } from '@/types/PositionGrid'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { generateRequestID } from '@/helpers/websocket-cli'

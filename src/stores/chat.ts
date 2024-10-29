@@ -10,6 +10,7 @@ export const useChatStore = defineStore('chat', () => {
   const response = ref<string>('');
   const messages = ref<Array<Message>>([])
   const currentTextToSpeech = ref<HTMLAudioElement>(new Audio())
+  const baseUrl = import.meta.env.VITE_BASE_HTTP_URL
   const chatThresholds = ref([
     {value: 1000, message: "I got 1000 points. Praise me and say some good and horny things to me!"},
     {value: 2000, message: "I got 2000 points. Praise me and say some good and horny things to me more!"},
@@ -58,7 +59,7 @@ export const useChatStore = defineStore('chat', () => {
       messages: messages.value
     }
     return await fetch(
-      "http://localhost:3031/api/send-message",
+      baseUrl + "api/send-message",
       {
         headers: {
           "Accept": "application/json",
