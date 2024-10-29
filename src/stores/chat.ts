@@ -1,21 +1,27 @@
+import type { Message } from '@/types/Message'
+
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useGameInfoStore } from '@/stores/gameInfo'
 
-export const useChatStore = defineStore('chat', () => {
-  const MAX_TOKEN_COUNT = 50;
-  const TEMPERATURE = 0.5;
-  const SYSTEM_PROMT = "You are horny anime girl named Miku who thinks only about sex. Answer with only short horny answers like you having a conversation"
 
+export const useChatStore = defineStore('chat', () => {
   const gameInfo = useGameInfoStore();
   const response = ref<string>('');
-  const timestamp = ref<string>('');
+  const messages = ref<Array<Message>>([])
+  const currentTextToSpeech = ref<HTMLAudioElement>(new Audio())
   const chatThresholds = ref([
     {value: 1000, message: "I got 1000 points. Praise me and say some good and horny things to me!"},
     {value: 2000, message: "I got 2000 points. Praise me and say some good and horny things to me more!"},
     {value: 3000, message: "I got 3000 points. You are only in your underwear. Praise me and get really naughty!"},
     {value: 4000, message: "I got 4000 points. You are already half-naked. Say something about your boobs and praise me and get really naughty!"},
   ])
+
+  function initClientId() {
+    if (!localStorage.getItem("clientId")) {
+      localStorage.setItem("clientId", `client_${Math.random().toString(36).substring(2, 15)}`);
+    }
+  }
 
   async function checkScore() {
     const threshold = chatThresholds.value.find(x => gameInfo.score >= x.value)
@@ -40,62 +46,54 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   async function dolphinRequestApi (value: string) {
+    const clientId = localStorage.getItem("clientId");
+
+    messages.value.push({
+      role: 'user',
+      content: value,
+    })
+
+    const body = {
+      client_id: clientId,
+      messages: messages.value
+    }
     return await fetch(
-      "https://better-squirrel-vastly.ngrok-free.app/api/chat",
+      "http://localhost:3031/api/send-message",
       {
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json"
         },
         method: "POST",
-        body: JSON.stringify({
-          options: {
-            seed: Math.floor(Math.random() * 100000),
-            num_predict: MAX_TOKEN_COUNT,
-            temperature: TEMPERATURE,
-          },
-          model: "hf.co/cognitivecomputations/dolphin-2.9.4-llama3.1-8b-gguf:Q6_K",
-          messages: [{ "role": "system", "content": SYSTEM_PROMT }, { "role": "user", "content": value }],
-          stream: true,
-        }),
+        body: JSON.stringify(body),
       }
     )
   }
 
+  function processAudioRequest(audioBase64: string) {
+    console.log("PAUSE PLEASE")
+    const audioBytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0))
+    const audioBlob = new Blob([audioBytes], {type: "audio/mpeg"})
+    currentTextToSpeech.value.pause()
+    currentTextToSpeech.value.currentTime = 0;
+    currentTextToSpeech.value = new Audio(URL.createObjectURL(audioBlob))
+    currentTextToSpeech.value.volume = 0.5
+    currentTextToSpeech.value.play();
+  }
+
   async function processDolphinRequest(value: string) {
-    const dolphinRequest = await dolphinRequestApi(value)
-    const reader = dolphinRequest.body?.getReader();
-    let dolphinResponse = "";
-    let done = false;
-    timestamp.value = new Date().toISOString();
-    console.log(`[${timestamp.value}][] Roast generation started`);
-    while (!done) {
-      const readResult = await reader?.read();
-      if (readResult) {
-        const { value, done: isDone } = readResult;
-        if (value) {
-          const rawResponse = new TextDecoder().decode(value);
-          try {
-            const lines = rawResponse.split("\n");
-            console.log(lines);
-            lines.map(line => {
-              if (line) {
-                const jsonLine = JSON.parse(line);
-                if (jsonLine.message.content) {
-                  dolphinResponse += jsonLine.message.content;
-                  response.value = dolphinResponse;
-                }
-              }
-            })
-          } catch (e) {
-            done = true;
-          }
-        }
-        done = isDone;
-      }
-    }
+    await dolphinRequestApi(value)
+      .then(response => response.json())
+      .then(data => {
+      messages.value.push({
+        role: 'assistant',
+        content: data.text
+      })
+      response.value = data.text;
+      processAudioRequest(data.audio);
+    })
   }
 
 
-  return { response, processDolphinRequest, checkScore, resetTresholds, gameOver }
+  return { response, processDolphinRequest, checkScore, initClientId, resetTresholds, gameOver }
 })

@@ -1,5 +1,13 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import { onMounted } from 'vue'
+import { useChatStore } from '@/stores/chat'
+
+const chatStore = useChatStore();
+
+onMounted(() => {
+  chatStore.initClientId()
+})
 </script>
 
 <template>

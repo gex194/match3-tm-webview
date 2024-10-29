@@ -1,4 +1,6 @@
-type GameState = {
+import type { Board } from '@/types/Board'
+
+export type GameState = {
   board: Board
   duration: number
   is_active: Boolean

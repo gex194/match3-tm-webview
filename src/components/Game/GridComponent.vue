@@ -5,6 +5,7 @@ import { Rectangle } from 'pixi.js'
 import { reactive, onMounted, onBeforeMount, toRaw, watch } from 'vue'
 import { Loader, onTick, type SpriteComponent } from 'vue3-pixi'
 import { useChatStore } from '@/stores/chat'
+import type { GameState } from '@/types/GameState'
 
 const props = defineProps({
   width: Number
@@ -19,7 +20,7 @@ const state = reactive({
   selectedBuffer: null as any | null,
   nextSelected: null as any | null,
   nextSelectedBuffer: null as any | null,
-  gameState: null as GameState | null,
+  gameState: {} as GameState,
   matches: [] as any[],
   explosionsArray: [] as any[],
   newCells: [] as any[],
@@ -79,10 +80,10 @@ const mapGridPositionToLocalCanvas = (value: number, constant: number): number =
 }
 
 const hydrateGrid = () => {
-  const { board } = state.gameState
-  const { grid } = board
+  const board = state.gameState.board
+  const grid = board.grid
   state.sprites = []
-  for (let x = 0; x < grid.length; x++) {
+  for (let x = 0; x < grid?.length; x++) {
     for (let y = 0; y < grid[x].length; y++) {
       let spriteData: any = {
         id: grid[x][y].id,
@@ -156,13 +157,13 @@ const handleClick = (event: any) => {
   }
 }
 
-const onGameStart = (response) => {
+const onGameStart = (response: any) => {
   state.gameState = response.data as GameState
   gameInfo.setTime(state.gameState.duration)
   hydrateGrid()
 }
 
-const onGameMove = (response) => {
+const onGameMove = (response: any) => {
   state.isMoving = true
   const randomIndex = Math.floor(Math.random() * 6)
   const moveSound = new Audio(configState.sounds[randomIndex])
@@ -208,7 +209,7 @@ const initializeWebSocketHandler = () => {
 
 const shrinkDeletedCells = () => {
   state.matches.forEach((match) => {
-    match.cells.forEach((matchCell) => {
+    match.cells.forEach((matchCell: any) => {
       state.sprites.forEach((sprite) => {
         if (sprite.id == matchCell.id && sprite.scale.x > 0) {
           sprite.scale.x = 0
