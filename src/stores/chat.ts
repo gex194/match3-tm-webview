@@ -11,11 +11,13 @@ export const useChatStore = defineStore('chat', () => {
   const messages = ref<Array<Message>>([])
   const currentTextToSpeech = ref<HTMLAudioElement>(new Audio())
   const baseUrl = import.meta.env.VITE_BASE_HTTP_URL
+  const gameStartValues = {message: " I'm Kuroko, a kawaii anime girl, always excited to play some cute games with handsome senpai like you. Just make sure we keep things fun and playful",
+    sound: "/assets/sounds/game_start.mp3"}
   const chatThresholds = ref([
-    {value: 1000, message: "I got 1000 points. Praise me and say some good and horny things to me!"},
-    {value: 2000, message: "I got 2000 points. Praise me and say some good and horny things to me more!"},
-    {value: 3000, message: "I got 3000 points. You are only in your underwear. Praise me and get really naughty!"},
-    {value: 4000, message: "I got 4000 points. You are already half-naked. Say something about your boobs and praise me and get really naughty!"},
+    {value: 1000, message: "Ooh, senpai. You starting to make me feel interested in you!", sound: "/assets/sounds/threshold_1.mp3"},
+    {value: 2000, message: "Ooh senpai. I'm feeling fortunate to meet you today. Play more, please, play more!", sound: "/assets/sounds/threshold_2.mp3"},
+    {value: 3000, message: "Oooh, senpai. I'm feeling wet in my panties, yes, play, play! oh yes", sound: "/assets/sounds/threshold_3.mp3"},
+    {value: 4000, message: "Yes senpai, look at my boobs, touch them, feel them. Cum inside me!", sound: "/assets/sounds/threshold_4.mp3"},
   ])
 
   function initClientId() {
@@ -24,10 +26,27 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  function setMessageAndSound(message: string, soundSrc: string) {
+    response.value = message;
+    setSound(soundSrc)
+  }
+
+  function setSound(soundSrc: string) {
+    currentTextToSpeech.value.pause()
+    currentTextToSpeech.value.currentTime = 0;
+    currentTextToSpeech.value = new Audio(soundSrc)
+    currentTextToSpeech.value.volume = 0.5
+    currentTextToSpeech.value.play();
+  }
+
+  function startGameMessageAndSound() {
+    setMessageAndSound(gameStartValues.message, gameStartValues.sound)
+  }
+
   async function checkScore() {
     const threshold = chatThresholds.value.find(x => gameInfo.score >= x.value)
     if (threshold) {
-      await processDolphinRequest(threshold.message);
+      setMessageAndSound(threshold.message, threshold.sound)
       chatThresholds.value.shift();
     }
   }
@@ -39,10 +58,10 @@ export const useChatStore = defineStore('chat', () => {
 
   function resetTresholds() {
     chatThresholds.value = [
-      {value: 1000, message: "I got 1000 points. Praise me and say some good and horny things to me!"},
-      {value: 2000, message: "I got 2000 points. Praise me and say some good and horny things to me more!"},
-      {value: 3000, message: "I got 3000 points. You are only in your underwear. Praise me and get really naughty!"},
-      {value: 4000, message: "I got 4000 points. You are already half-naked. Say something about your boobs and praise me and get really naughty!"},
+      {value: 1000, message: "Ooh, senpai. You starting to make me feel interested in you!", sound: "/assets/sounds/threshold_1.mp3"},
+      {value: 2000, message: "Ooh senpai. I'm feeling fortunate to meet you today. Play more, please, play more!", sound: "/assets/sounds/threshold_2.mp3"},
+      {value: 3000, message: "Oooh, senpai. I'm feeling wet in my panties, yes, play, play! oh yes", sound: "/assets/sounds/threshold_3.mp3"},
+      {value: 4000, message: "Yes senpai, look at my boobs, touch them, feel them. Cum inside me!", sound: "/assets/sounds/threshold_4.mp3"},
     ]
   }
 
@@ -75,11 +94,7 @@ export const useChatStore = defineStore('chat', () => {
     console.log("PAUSE PLEASE")
     const audioBytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0))
     const audioBlob = new Blob([audioBytes], {type: "audio/mpeg"})
-    currentTextToSpeech.value.pause()
-    currentTextToSpeech.value.currentTime = 0;
-    currentTextToSpeech.value = new Audio(URL.createObjectURL(audioBlob))
-    currentTextToSpeech.value.volume = 0.5
-    currentTextToSpeech.value.play();
+    setSound(URL.createObjectURL(audioBlob))
   }
 
   async function processDolphinRequest(value: string) {
@@ -96,5 +111,5 @@ export const useChatStore = defineStore('chat', () => {
   }
 
 
-  return { response, processDolphinRequest, checkScore, initClientId, resetTresholds, gameOver }
+  return { response, processDolphinRequest, checkScore, initClientId, gameOver, startGameMessageAndSound }
 })

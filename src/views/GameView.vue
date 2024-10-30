@@ -32,7 +32,7 @@ onBeforeRouteLeave(() => {
 onMounted(() => {
   setTimeout(() => {
     show.value = true
-    chatStore.processDolphinRequest('Shortly introduce yourself in sexy way')
+    chatStore.startGameMessageAndSound()
   }, 700)
 })
 
