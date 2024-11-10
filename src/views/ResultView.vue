@@ -7,6 +7,7 @@ import { useSocketStore } from '@/stores/socket'
 import WaifuComponent from '@/components/WaifuComponent.vue'
 import ChatComponent from '@/components/ChatComponent.vue'
 import { useChatStore } from '@/stores/chat'
+import SocialsComponent from '@/components/SocialsComponent.vue'
 
 const show = ref<boolean>(false)
 const inputValue = ref<string>('wallet address')
@@ -33,7 +34,6 @@ const socketErrorHandler = (): void => {
   socketStore.socket?.addEventListener('message', (event) => {
     try {
       const response = JSON.parse(event.data)
-      console.log('response data', response.data)
       if (response.path == '/game/update_wallet' && response.code == 500) {
         error.value = true
         errorText.value = response.error
@@ -78,7 +78,9 @@ onMounted(() => {
         </div>
         <div class="result-content">
           <div class="result-content--waifu"><WaifuComponent /></div>
-          <div class="result-content--chat"><ChatComponent /></div>
+          <div class="result-content--chat">
+            <ChatComponent />
+            <SocialsComponent /></div>
           <div class="result-content--form">
             <div name="result-block" class="result-block">
               <div class="time-result">
@@ -122,6 +124,7 @@ onMounted(() => {
 
 .result-content--chat {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }

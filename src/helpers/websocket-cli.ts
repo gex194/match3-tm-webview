@@ -3,7 +3,6 @@ export const openWebSocketConnection = () => {
   socket = new WebSocket('ws://localhost:3032/ws')
 
   socket.onopen = function () {
-    console.log('Connected to webSocket server')
     console.log(socket)
   }
 

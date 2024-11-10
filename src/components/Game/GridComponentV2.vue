@@ -28,7 +28,6 @@ function matchHorizontalGroups(grid: Cell[][]) {
       if (item.name == lastItem?.name) {
         chainLength++
         currentGroup.push(item)
-        console.log('HORIZONTAL MATCH')
       } else {
         if (chainLength >= 3) {
           groups.push(...currentGroup)

@@ -14,12 +14,23 @@ export const useSocketStore = defineStore('socket', () => {
   const wallet = ref<string>('')
   const baseWsUrl = tgStore.tgInitData ? import.meta.env.VITE_BASE_WS_URL : import.meta.env.VITE_BASE_WS_BROWSER_URL
 
+  function initClientId() {
+    let newClientId = '';
+    if (!localStorage.getItem("clientId")) {
+      newClientId = `${Math.random().toString(36).substring(2, 15)}`
+      localStorage.setItem("clientId", newClientId);
+      return newClientId;
+    }
+    else {
+      return localStorage.getItem("clientId")
+    }
+  }
+
   const openWebSocketConnection = () => {
-    socket.value = new WebSocket(baseWsUrl + tgStore.tgInitData)
+    const params = tgStore.tgInitData ? tgStore.tgInitData :`?client_id=${initClientId()}`
+    socket.value = new WebSocket(baseWsUrl + params)
 
     socket.value.addEventListener('open', (event: Event) => {
-      console.log('Connected to webSocket server')
-      console.log(socket)
     })
 
     socket.value.onerror = (ev: Event) => {
@@ -27,17 +38,14 @@ export const useSocketStore = defineStore('socket', () => {
     }
 
     socket.value.addEventListener('message', (event: MessageEvent<any>) => {
-      console.log('Message recieved', event)
       try {
         const response = JSON.parse(event.data)
-        console.log('response data', response.data)
 
         if (response.path == '/game/start_game') {
           session_id.value = response.data.session_id
         }
 
         if (response.path == '/game/leaderboard') {
-          console.log('leaderboard', response.data)
           gameInfo.setLeaderboard(response.data)
         }
 
@@ -56,7 +64,8 @@ export const useSocketStore = defineStore('socket', () => {
 
   const startGameRequest = () => {
     const requestBody = {
-      telegram_id: tgStore.tgUserId
+      telegram_id: tgStore.tgUserId,
+      client_id: localStorage.getItem("clientId")
     }
 
     const request = {
@@ -111,10 +120,12 @@ export const useSocketStore = defineStore('socket', () => {
   }
 
   const updateWalletRequest = (value: string) => {
+    const clientId: string | null = localStorage.getItem("clientId")
     const request = {
       path: '/game/update_wallet',
       request_id: generateRequestID(),
       body: {
+        client_id: clientId,
         telegram_id: tgStore.tgUserId,
         session_id: session_id.value,
         wallet: value
@@ -133,11 +144,8 @@ export const useSocketStore = defineStore('socket', () => {
   }
 
   const sendWebSocketRequest = (request: Object) => {
-    console.log('sendWebSocketRequest Sending request:', request)
     if (socket.value && socket.value.readyState === WebSocket.OPEN) {
       socket.value.send(JSON.stringify(request))
-    } else {
-      console.log('WebSocket connection is not open. Cannot send move.')
     }
   }
 
@@ -145,6 +153,7 @@ export const useSocketStore = defineStore('socket', () => {
     socket,
     session_id,
     wallet,
+    initClientId,
     openWebSocketConnection,
     startGameRequest,
     moveRequest,

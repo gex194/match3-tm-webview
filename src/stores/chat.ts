@@ -20,12 +20,6 @@ export const useChatStore = defineStore('chat', () => {
     {value: 4000, message: "Yes senpai, look at my boobs, touch them, feel them. Cum inside me!", sound: "/assets/sounds/threshold_4.mp3"},
   ])
 
-  function initClientId() {
-    if (!localStorage.getItem("clientId")) {
-      localStorage.setItem("clientId", `client_${Math.random().toString(36).substring(2, 15)}`);
-    }
-  }
-
   function setMessageAndSound(message: string, soundSrc: string) {
     response.value = message;
     setSound(soundSrc)
@@ -91,7 +85,6 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   function processAudioRequest(audioBase64: string) {
-    console.log("PAUSE PLEASE")
     const audioBytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0))
     const audioBlob = new Blob([audioBytes], {type: "audio/mpeg"})
     setSound(URL.createObjectURL(audioBlob))
@@ -111,5 +104,5 @@ export const useChatStore = defineStore('chat', () => {
   }
 
 
-  return { response, processDolphinRequest, checkScore, initClientId, gameOver, startGameMessageAndSound }
+  return { response, processDolphinRequest, checkScore, gameOver, startGameMessageAndSound }
 })

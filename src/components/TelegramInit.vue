@@ -20,7 +20,6 @@ onMounted(() => {
   tgWebApp.ready()
   storeTgInitData()
 })
-console.log('initData', tgWebApp)
 </script>
 
 <template>

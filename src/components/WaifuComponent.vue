@@ -70,6 +70,9 @@ onBeforeMount(() => {
 }
 .waifu-img {
   max-height: 560px;
+  min-width: 202px;
+  max-width: 550px;
+  min-height: 300px;
   width: 100%;
 }
 </style>

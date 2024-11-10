@@ -52,9 +52,7 @@ watch(() => props.width, (value) => {
 }, {immediate: true})
 
 function initSpriteSize(width: number | undefined) {
-  console.log('width', width)
   if (width) {
-    console.log('width', width)
     configState.SPRITE_WIDTH = Math.floor(width / 8) //50props.width
     configState.SPRITE_HEIGHT = Math.floor(690 / 8) //50props.width
     configState.SCALE_X = (width / 690) / 1.5;
@@ -134,7 +132,6 @@ const resetStateValueScale = () => {
 }
 
 const handleClick = (event: any) => {
-  console.log("HANDLE CLICK", event)
   let from
   let to
   const element = event.currentTarget
@@ -184,7 +181,6 @@ const initializeWebSocketHandler = () => {
   socketStore.socket?.addEventListener('message', (event: MessageEvent<any>) => {
     try {
       const response = JSON.parse(event.data)
-      console.log('response from ws', response)
 
       if (response.path == '/game/start_game') {
         onGameStart(response)

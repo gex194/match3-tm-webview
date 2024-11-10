@@ -6,9 +6,9 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import StyledButton from '@/components/StyledButton.vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import WaifuComponent from '@/components/WaifuComponent.vue'
-import ChatComponent from '@/components/ChatComponent.vue'
 import { useChatStore } from '@/stores/chat'
 import ProgressBar from '@/components/ProgressBar.vue'
+import SocialsComponent from '@/components/SocialsComponent.vue'
 
 const bgMusic = new Audio('/assets/sounds/background_music.mp3')
 const chatStore = useChatStore();
@@ -50,6 +50,7 @@ onUnmounted(() => {
             <div class="button-container" v-if="!isPlayButtonPressed">
                 <WaifuComponent :chat="true" />
               <StyledButton @click="handlePlayButton" :disabled="!chatStore.response">Play</StyledButton>
+              <SocialsComponent />
             </div>
             <div class="game-screen-container" v-else>
               <TopPanel />
