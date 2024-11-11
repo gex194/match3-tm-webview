@@ -4,7 +4,7 @@ const handleTwitter = () => {
 }
 
 const handlePumpFun = () => {
-  window.open("https://pump.fun/coin/R5svgiRfuyZvy6gEwp14ezNiuJ6ASTF3eFsdeZCpump", "_blank");
+  window.open("https://pump.fun/coin/7RWF3z2PfzGsYYubU3CyE3agczMXBSwhbhYJd7mkpump", "_blank");
 }
 </script>
 
